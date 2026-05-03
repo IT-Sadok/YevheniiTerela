@@ -1,17 +1,26 @@
+using System.Globalization;
+
 namespace ConsoleBookingSystem;
 
 public class Apartment
 {
     public int Id { get; set; }
     public int Number { get; set; }
-    public decimal Price { get; set; }
+    public double Price { get; set; }
     public bool IsBooked { get; set; }
+    
 
-    public Apartment(int id, int number, decimal price)
+    public Apartment(int id, int number, double price, bool isBooked = false)
     {
-        Id = 1;
+        Id = id;
         Number = number;
         Price = price;
-        IsBooked = false;
+        IsBooked = isBooked;
+    }
+    
+
+    public override string ToString()
+    {
+        return $"Apartment #{Number}, ${Price.ToString("F2", CultureInfo.InvariantCulture)} {(IsBooked ? "" : "(available for reservation)")}";
     }
 }

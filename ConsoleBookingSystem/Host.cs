@@ -6,6 +6,7 @@ public class Host
     public string Name { get; set; }
     public string Address { get; set; }
     public List<Apartment> Apartments { get; set; } = [];
+    
 
     public Host(int id, string name, string address)
     {
@@ -17,6 +18,6 @@ public class Host
 
     public override string ToString()
     {
-        return $"ID = {Id} - {Name}, {Address}, ({Apartments.Count} apartments)";
+        return $"ID={Id} --> {Name}, {Address} ({Apartments.Count} apartments)";
     }
 }
