@@ -35,10 +35,9 @@ void ShowAllHosts()
 {
     Console.WriteLine("\n===== List of all Hosts =====\n");
     
-    int counter = 1;
     foreach (var host in hostsList)
     {
-        Console.WriteLine($"{counter++}. {host}");
+        Console.WriteLine(host);
     }
 }
 
