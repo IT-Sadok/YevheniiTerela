@@ -3,26 +3,26 @@
 Console.WriteLine("\n============= Hello, this is Booking System app! =============\n");
 
 // creating Hosts
-var host1 = new Host(5, "Hotel \'California\'", "Main Street, 1");
-var host2 = new Host(8, "Hotel \'Minnesota\'", "Main Street, 5");
-var host3 = new Host(14, "Hotel \'Minnesota\'", "Secondary Street, 53");
+var host1 = new Host { Id = 5, Name = "Hotel \'California\'", Address = "Main Street, 1" };
+var host2 = new Host { Id = 8, Name = "Hotel \'Minnesota\'", Address = "Main Street, 5" };
+var host3 = new Host { Id = 14, Name = "Hotel \'Minnesota\'", Address = "Secondary Street, 53" };
 
 
 // adding Apartments to Hosts with creating Apartments "on the fly"
 // (leaving host3 without added Apartments intentionally)
 host1.Apartments.AddRange(new List<Apartment>
 {
-    new Apartment(1, 21, 150.1),
-    new Apartment(2, 12, 110.4, true),
-    new Apartment(3, 45, 20.7),
-    new Apartment(4, 100, 560),
+    new Apartment{ Id = 1, Number = 21,  Price = 150.1 },
+    new Apartment{ Id = 2, Number = 12, Price = 110.4, IsBooked = true},
+    new Apartment{ Id = 3, Number = 45, Price = 20.7 },
+    new Apartment{ Id = 4, Number = 100, Price = 560 },
 });
 
 host2.Apartments.AddRange(new List<Apartment>
 {
-    new Apartment(5, 14, 340.4),
-    new Apartment(6, 11, 10, true),
-    new Apartment(7, 65, 240.1)
+    new Apartment{ Id = 5,  Number = 14,  Price = 340.4 },
+    new Apartment{ Id = 6, Number = 11, Price = 10, IsBooked = true },
+    new Apartment { Id = 7, Number = 65, Price = 240.1 }
 });
 
 
