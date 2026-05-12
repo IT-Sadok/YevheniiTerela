@@ -61,4 +61,28 @@ public class ConsoleInputOutput
         Write(message);
         Console.ReadKey();
     }
+
+
+    public T ReadEnumValue<T>(string message, bool retryOnInvalid = false, string retryMessage = "Invalid input. Please try again.") where T : struct
+    {
+        Write(message);
+        
+        T returnValue;
+        bool isParsed;
+
+        while (true)
+        {
+            isParsed = Enum.TryParse<T>(Console.ReadKey().KeyChar.ToString(), out returnValue);
+            
+            if (!isParsed)
+            {
+                Write(retryMessage);
+                if (retryOnInvalid) continue;
+            }
+            
+            break;
+        }
+        
+        return returnValue;
+    }
 }
