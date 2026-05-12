@@ -5,67 +5,59 @@ Console.WriteLine("\n============= Hello, this is Booking System app! ==========
 var hostStorage = new InMemoryHostStorage();
 var hostsService = new HostService(hostStorage);
 var hostsList = hostsService.GetHosts();
-
+var io = new ConsoleInputOutput();
 
 void ShowAllHosts()
 {
-    Console.WriteLine("\n===== List of all Hosts =====\n");
+    io.Write("\n===== List of all Hosts =====\n");
     
     foreach (var host in hostsList)
     {
-        Console.WriteLine(host);
+        io.Write(host.ToString());
     }
 }
 
 
 void ShowHostDetails()
 {
-    Console.WriteLine("\nEnter ID of the Host you are searching for (confirm input by pressing Enter):");
-    
-    if (!int.TryParse(Console.ReadLine(), out var searchedHostId))
-    {
-        Console.WriteLine("\nInvalid input - Host ID must be an integer. Please try again.");
-        return;
-    } 
+    var searchedHostId = io.ReadInt(
+        "\nEnter ID of the Host you are searching for (confirm input by pressing Enter):",
+        true,
+        "\nInvalid input - Host ID must be an integer. Please try again."
+    );
     
     var host = hostsService.GetHostById(searchedHostId);
     if (host is null) 
     {
-        Console.WriteLine($"\nNo host with found with ID = {searchedHostId}.");
+        io.Write($"\nNo host with found with ID = {searchedHostId}.");
         return;
     }
 
-    Console.WriteLine("\n==== Search results: ====\n");
-    Console.WriteLine($"{host}:");
+    io.Write("\n==== Search results: ====\n");
+    io.Write($"{host}:");
     
     if (host.Apartments.Count == 0)
     {
-        Console.WriteLine("No apartments found for current Host.");
+        io.Write("No apartments found for current Host.");
         return;
     }
 
     foreach (var apartment in host.Apartments)
     {
-        Console.WriteLine($" - {apartment}");
+        io.Write($" - {apartment}");
     }
 }
 
 
 void ExitApp()
 {
-    Console.WriteLine("\nExiting... See you next time!");
-}
-
-
-void HandleInvalidInput()
-{
-    Console.WriteLine("\nInvalid input: please enter a number between 0 and 2.");
+    io.Write("\nExiting... See you next time!");
 }
 
 
 void HandleInvalidActionInput()
 {
-    Console.WriteLine("\nInvalid number: a number for an action must be between 0 and 2.");
+    io.Write("\nInvalid number: a number for an action must be between 0 and 2.");
 }
 
 
@@ -73,31 +65,26 @@ int pressedNumericKey;
 
 while (true)
 {
-    Console.WriteLine("\nSelect action:");
-    Console.WriteLine("- press 1 to show all Hosts;");
-    Console.WriteLine("- press 2 to show all available Apartments for a Host (by Host's ID);");
-    Console.WriteLine("- press 0 to exit the app.");
+    io.Write("\nSelect action:");
+    io.Write("- press 1 to show all Hosts;");
+    io.Write("- press 2 to show all available Apartments for a Host (by Host's ID);");
+    io.Write("- press 0 to exit the app.");
     
-    Console.WriteLine("");
+    io.Write("");
 
-    if (!int.TryParse(Console.ReadKey().KeyChar.ToString(), out pressedNumericKey))
-    {
-        HandleInvalidInput();
-        continue;
-    }
+    pressedNumericKey = io.ReadIntFromKey("", true, "\nInvalid input: please enter a number between 0 and 2.");
     
-    Console.WriteLine("");
+    io.Write("");
 
     switch (pressedNumericKey)
     {
         case 1: ShowAllHosts(); break;
         case 2: ShowHostDetails(); break;
         case 0: ExitApp(); return;
-        default: HandleInvalidActionInput(); continue;
+        default: HandleInvalidActionInput(); continue; // "continue;" keyword is for new iteration of while loop, related to switch{}
     }
 
-    Console.WriteLine("\nPress any key to continue");
-    Console.ReadKey();
+    io.RequireAnyKey("\nPress any key to continue");
     
-    Console.WriteLine("\n-------");
+    io.Write("\n-------");
 }
