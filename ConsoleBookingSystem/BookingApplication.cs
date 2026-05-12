@@ -10,6 +10,7 @@ public class BookingApplication
         { BookingApplicationActionType.ShowAllHosts, "Show all Hosts" },
         { BookingApplicationActionType.ShowHostDetails, "Show all available Apartments for a Host (by Host's ID)" },
         { BookingApplicationActionType.AddNewHost, "Add new Host" },
+        { BookingApplicationActionType.RemoveHost, "Remove Host by ID" },
         { BookingApplicationActionType.ExitApplication, "Exit the application" },
     };
     
@@ -27,6 +28,13 @@ public class BookingApplication
         _io.Write("\n===== List of all Hosts =====\n");
         
         var hosts = _hostsService.GetHosts();
+
+        if (hosts.Count == 0)
+        {
+            _io.Write("No Hosts added yet.");
+            return;
+        }
+        
         foreach (var host in hosts)
         {
             _io.Write(host.ToString());
@@ -75,11 +83,34 @@ public class BookingApplication
         try
         {
             _hostsService.AddHost(newHostName, newHostAddress);
+            // this line is expected to be shown when Host removed successfully
             _io.Write("\nHost added successfully!");
         }
         catch (Exception ex)
         {
+            // this line is expected to be shown when there was an error during adding a Host
+            // (Host with specified name and address already exists, etc)
             _io.Write($"\n{ex.Message}");
+        }
+    }
+
+
+    void HandleRemoveHostAction()
+    {
+        _io.Write("\n==== You are removing a Host: ====");
+        
+        var hostIdToRemove = _io.ReadInt("Enter ID of the Host that needs to be removed (confirm input by pressing Enter):", true, "Invalid host ID entered, please try again.");
+        try
+        {
+            _hostsService.RemoveHostById(hostIdToRemove);
+            // this line is expected to be shown when Host removed successfully
+            _io.Write("\nHost removed successfully!");
+        }
+        catch (Exception exception)
+        {
+            // this line is expected to be shown when there was an error during deleting a Host
+            // (Host with specified ID was not found, etc)
+            _io.Write($"\n{exception.Message}");
         }
     }
     
@@ -99,11 +130,13 @@ public class BookingApplication
     void ShowActionsMenu()
     {
         BookingApplicationActionType currentActionType;
-        int loopCounter = 1;
+        int loopCounter;
         bool isLastIteration;
         
         while (true)
         {
+            loopCounter = 1; // resetting counter at the beginning of every iteration
+            
             _io.Write("\nSelect action:");
             
             foreach (var actionType in _actions)
@@ -119,6 +152,7 @@ public class BookingApplication
                 case BookingApplicationActionType.ShowAllHosts: HandleShowAllHostsAction(); break;
                 case BookingApplicationActionType.ShowHostDetails: HandleShowHostDetailsAction(); break;
                 case BookingApplicationActionType.AddNewHost: HandleAddNewHostAction(); break;
+                case BookingApplicationActionType.RemoveHost: HandleRemoveHostAction(); break;
                 case BookingApplicationActionType.ExitApplication:
                 {
                     HandleExitAppAction();

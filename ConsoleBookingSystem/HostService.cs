@@ -40,4 +40,21 @@ public class HostService
         
         _hostStorage.SaveHost(new Host { Id = newHostId, Name = hostName, Address = address });
     }
+
+
+    public void RemoveHostById(int hostId)
+    {
+        if (_hostStorage.FindHostsCount() == 0)
+        {
+            throw new Exception("No Hosts added yet.");
+        }
+            
+        var host = _hostStorage.FindHostById(hostId);
+        if (host == null)
+        {
+            throw new Exception($"Host with ID = {hostId} not found.");
+        }
+        
+        _hostStorage.RemoveHost(host);
+    }
 }

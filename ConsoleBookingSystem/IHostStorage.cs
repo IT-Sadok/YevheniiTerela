@@ -11,4 +11,8 @@ public interface IHostStorage
     public Host? FindLastAddedHost();
     
     public void SaveHost(Host host);
+    
+    public int FindHostsCount();
+    
+    public void RemoveHost(Host host);
 }

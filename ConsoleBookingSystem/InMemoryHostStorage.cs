@@ -42,7 +42,7 @@ public class InMemoryHostStorage : IHostStorage
 
     public Host? FindHostById(int hostId)
     {
-        return _hosts.FirstOrDefault(h => h.Id == hostId);
+        return _hosts.FirstOrDefault(host => host.Id == hostId);
     }
 
 
@@ -61,5 +61,17 @@ public class InMemoryHostStorage : IHostStorage
     public void SaveHost(Host host)
     {
         _hosts.Add(host);
+    }
+
+
+    public int FindHostsCount()
+    {
+        return _hosts.Count;
+    }
+
+
+    public void RemoveHost(Host host)
+    {
+        _hosts.Remove(host);
     }
 }
