@@ -2,33 +2,9 @@
 
 Console.WriteLine("\n============= Hello, this is Booking System app! =============\n");
 
-// creating Hosts
-var host1 = new Host { Id = 5, Name = "Hotel \'California\'", Address = "Main Street, 1" };
-var host2 = new Host { Id = 8, Name = "Hotel \'Minnesota\'", Address = "Main Street, 5" };
-var host3 = new Host { Id = 14, Name = "Hotel \'Minnesota\'", Address = "Secondary Street, 53" };
-
-
-// adding Apartments to Hosts with creating Apartments "on the fly"
-// (leaving host3 without added Apartments intentionally)
-host1.Apartments.AddRange(new List<Apartment>
-{
-    new Apartment{ Id = 1, Number = 21,  Price = 150.1 },
-    new Apartment{ Id = 2, Number = 12, Price = 110.4, IsBooked = true},
-    new Apartment{ Id = 3, Number = 45, Price = 20.7 },
-    new Apartment{ Id = 4, Number = 100, Price = 560 },
-});
-
-host2.Apartments.AddRange(new List<Apartment>
-{
-    new Apartment{ Id = 5,  Number = 14,  Price = 340.4 },
-    new Apartment{ Id = 6, Number = 11, Price = 10, IsBooked = true },
-    new Apartment { Id = 7, Number = 65, Price = 240.1 }
-});
-
-
-
-
-var hostsList = new List<Host> { host1, host2, host3 };
+var hostStorage = new InMemoryHostStorage();
+var hostsService = new HostService(hostStorage);
+var hostsList = hostsService.GetHosts();
 
 
 void ShowAllHosts()
@@ -42,12 +18,6 @@ void ShowAllHosts()
 }
 
 
-Host? FindHostById(int id)
-{
-    return hostsList.FirstOrDefault(h => h.Id == id);
-}
-
-
 void ShowHostDetails()
 {
     Console.WriteLine("\nEnter ID of the Host you are searching for (confirm input by pressing Enter):");
@@ -58,7 +28,7 @@ void ShowHostDetails()
         return;
     } 
     
-    var host = FindHostById(searchedHostId);
+    var host = hostsService.GetHostById(searchedHostId);
     if (host is null) 
     {
         Console.WriteLine($"\nNo host with found with ID = {searchedHostId}.");
@@ -125,6 +95,9 @@ while (true)
         case 0: ExitApp(); return;
         default: HandleInvalidActionInput(); continue;
     }
+
+    Console.WriteLine("\nPress any key to continue");
+    Console.ReadKey();
     
     Console.WriteLine("\n-------");
 }
