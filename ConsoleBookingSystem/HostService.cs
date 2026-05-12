@@ -21,4 +21,23 @@ public class HostService
     {
         return _hostStorage.FindHostById(hostId);
     }
+
+
+    public bool HostExistsByNameAndAddress(string name, string address)
+    {
+        return _hostStorage.FindHostByNameAndAddress(name, address) != null;
+    }
+
+
+    public void AddHost(string hostName, string address)
+    {
+        if (HostExistsByNameAndAddress(hostName, address))
+        {
+            throw new Exception("Host already exists");
+        }
+        
+        var newHostId = (_hostStorage.FindLastAddedHost()?.Id ?? 1) + 1;
+        
+        _hostStorage.SaveHost(new Host { Id = newHostId, Name = hostName, Address = address });
+    }
 }

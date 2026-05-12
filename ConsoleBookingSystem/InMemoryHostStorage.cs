@@ -44,4 +44,22 @@ public class InMemoryHostStorage : IHostStorage
     {
         return _hosts.FirstOrDefault(h => h.Id == hostId);
     }
+
+
+    public Host? FindHostByNameAndAddress(string hostName, string address)
+    {
+        return _hosts.FirstOrDefault(host => host.Name.ToLower() == hostName.ToLower() && host.Address.ToLower() == address.ToLower());
+    }
+
+
+    public Host? FindLastAddedHost()
+    {
+        return _hosts.LastOrDefault();
+    }
+    
+
+    public void SaveHost(Host host)
+    {
+        _hosts.Add(host);
+    }
 }

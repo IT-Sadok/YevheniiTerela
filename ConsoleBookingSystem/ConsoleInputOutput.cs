@@ -85,4 +85,26 @@ public class ConsoleInputOutput
         
         return returnValue;
     }
+
+
+    public string ReadString(string message, bool retryOnEmptyString = false, string retryMessage = "Input is empty, please enter a valid string.")
+    {
+        Write(message);
+
+        string input;
+
+        while (true)
+        {
+            input = Console.ReadLine() ?? string.Empty;
+            if (string.IsNullOrEmpty(input))
+            {
+                Write(retryMessage);
+                if (retryOnEmptyString) continue;
+            }
+            
+            break;
+        }
+        
+        return input;
+    }
 }
