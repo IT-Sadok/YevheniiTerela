@@ -22,6 +22,25 @@ public class BookingApplication
         _hostsService = new HostService(_hostsStorage);
         _io = new ConsoleInputOutput();
     }
+
+
+    int TryRetrieveHostId(string message, string invalidInputMessage)
+    {
+        int hostIdToRetrieve;
+        
+        // iterating until user inputs valid and existing host-id
+        while (true)
+        {
+            hostIdToRetrieve = _io.ReadInt(message, true, invalidInputMessage);
+            if (_hostsService.HostExistsById(hostIdToRetrieve))
+            {
+                break;
+            }
+            _io.Write($"Host with ID = {hostIdToRetrieve} does not exist. Please try again.");
+        }
+
+        return hostIdToRetrieve;
+    }
     
     
     void HandleShowAllHostsAction()
@@ -45,9 +64,8 @@ public class BookingApplication
     
     void HandleShowHostDetailsAction()
     {
-        var searchedHostId = _io.ReadInt(
+        var searchedHostId = TryRetrieveHostId(
             "\nEnter ID of the Host you are searching for (confirm input by pressing Enter):",
-            true,
             "\nInvalid input - Host ID must be an integer. Please try again."
         );
     
@@ -100,7 +118,10 @@ public class BookingApplication
     {
         _io.Write("\n==== You are removing a Host: ====");
         
-        var hostIdToRemove = _io.ReadInt("Enter ID of the Host that needs to be removed (confirm input by pressing Enter):", true, "Invalid host ID entered, please try again.");
+        var hostIdToRemove = TryRetrieveHostId(
+            "\nEnter ID of the Host that needs to be removed (confirm input by pressing Enter):",
+            "\nInvalid host ID entered, please try again."
+        );
         try
         {
             _hostsService.RemoveHostById(hostIdToRemove);
@@ -122,17 +143,9 @@ public class BookingApplication
         
         try
         {
-            int hostIdToUpdate;
-            // iterating until user inputs valid and existing host-id
-            while (true)
-            {
-                hostIdToUpdate = _io.ReadInt("Enter ID of the Host that needs to be updated (confirm input by pressing Enter):", true, "Invalid host ID entered, please try again.");
-                if (_hostsService.HostExistsById(hostIdToUpdate))
-                {
-                    break;
-                }
-                _io.Write($"Host with ID = {hostIdToUpdate} does not exist. Please try again.");
-            }
+            int hostIdToUpdate = TryRetrieveHostId(
+                "\nEnter ID of the Host that needs to be updated (confirm input by pressing Enter):",
+                "\nInvalid host ID entered, please try again.");
             
             var newHostName = _io.ReadString("Enter updated Host name:", true, "Host name can not be empty, please try again.");
             var newHostAddress = _io.ReadString("Enter updated Host address:", true, "Host address can not be empty, please try again.");
