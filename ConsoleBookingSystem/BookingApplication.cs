@@ -11,6 +11,7 @@ public class BookingApplication
         { BookingApplicationActionType.ShowHostDetails, "Show all available Apartments for a Host (by Host's ID)" },
         { BookingApplicationActionType.AddNewHost, "Add new Host" },
         { BookingApplicationActionType.RemoveHost, "Remove Host by ID" },
+        { BookingApplicationActionType.UpdateHost, "Update Host by ID" },
         { BookingApplicationActionType.ExitApplication, "Exit the application" },
     };
     
@@ -86,11 +87,11 @@ public class BookingApplication
             // this line is expected to be shown when Host removed successfully
             _io.Write("\nHost added successfully!");
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
             // this line is expected to be shown when there was an error during adding a Host
             // (Host with specified name and address already exists, etc)
-            _io.Write($"\n{ex.Message}");
+            _io.Write($"\n{exception.Message}");
         }
     }
 
@@ -105,6 +106,41 @@ public class BookingApplication
             _hostsService.RemoveHostById(hostIdToRemove);
             // this line is expected to be shown when Host removed successfully
             _io.Write("\nHost removed successfully!");
+        }
+        catch (Exception exception)
+        {
+            // this line is expected to be shown when there was an error during deleting a Host
+            // (Host with specified ID was not found, etc)
+            _io.Write($"\n{exception.Message}");
+        }
+    }
+    
+    
+    void HandleUpdateHostAction()
+    {
+        _io.Write("\n==== You are updating a particular Host's data ====");
+        
+        try
+        {
+            int hostIdToUpdate;
+            // iterating until user inputs valid and existing host-id
+            while (true)
+            {
+                hostIdToUpdate = _io.ReadInt("Enter ID of the Host that needs to be updated (confirm input by pressing Enter):", true, "Invalid host ID entered, please try again.");
+                if (_hostsService.HostExistsById(hostIdToUpdate))
+                {
+                    break;
+                }
+                _io.Write($"Host with ID = {hostIdToUpdate} does not exist. Please try again.");
+            }
+            
+            var newHostName = _io.ReadString("Enter updated Host name:", true, "Host name can not be empty, please try again.");
+            var newHostAddress = _io.ReadString("Enter updated Host address:", true, "Host address can not be empty, please try again.");
+            
+            _hostsService.EditHostById(hostIdToUpdate, newHostName, newHostAddress);
+            
+            // this line is expected to be shown when Host removed successfully
+            _io.Write("\nHost is updated successfully!");
         }
         catch (Exception exception)
         {
@@ -153,6 +189,7 @@ public class BookingApplication
                 case BookingApplicationActionType.ShowHostDetails: HandleShowHostDetailsAction(); break;
                 case BookingApplicationActionType.AddNewHost: HandleAddNewHostAction(); break;
                 case BookingApplicationActionType.RemoveHost: HandleRemoveHostAction(); break;
+                case BookingApplicationActionType.UpdateHost: HandleUpdateHostAction(); break;
                 case BookingApplicationActionType.ExitApplication:
                 {
                     HandleExitAppAction();

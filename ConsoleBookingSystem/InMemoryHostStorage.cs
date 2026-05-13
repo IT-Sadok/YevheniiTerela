@@ -74,4 +74,16 @@ public class InMemoryHostStorage : IHostStorage
     {
         _hosts.Remove(host);
     }
+
+
+    public void UpdateHost(int hostId, string hostName, string address)
+    {
+        var hostToUpdate = _hosts.FirstOrDefault(h => h.Id == hostId);
+        
+        if (hostToUpdate == null) 
+            throw new Exception($"Update failed. Host with ID = {hostId} not found.");
+        
+        hostToUpdate.Name = hostName;
+        hostToUpdate.Address = address;
+    }
 }
