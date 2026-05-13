@@ -43,12 +43,10 @@ public class HostService
     {
         if (HostExistsByNameAndAddress(hostName, address))
         {
-            throw new Exception("Host already exists");
+            throw new Exception("Host with specified name and address already exists.");
         }
         
-        var newHostId = (_hostStorage.FindLastAddedHost()?.Id ?? 1) + 1;
-        
-        _hostStorage.SaveHost(new Host { Id = newHostId, Name = hostName, Address = address });
+        _hostStorage.CreateHost(hostName, address);
     }
 
 

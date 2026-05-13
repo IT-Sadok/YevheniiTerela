@@ -96,8 +96,8 @@ public class BookingApplication
     {
         _io.Write("\n==== You are adding new Host: ====\n");
         
-        string newHostName = _io.ReadString("Enter new Host name:", true, "Host name can not be empty, please try again.");
-        string newHostAddress = _io.ReadString("Enter new Host address:", true, "Host address can not be empty, please try again.");
+        string newHostName = _io.ReadString("Enter new Host name:", true, "Host name can not be empty, please try again.").Trim();
+        string newHostAddress = _io.ReadString("Enter new Host address:", true, "Host address can not be empty, please try again.").Trim();
         
         try
         {
@@ -147,8 +147,8 @@ public class BookingApplication
                 "\nEnter ID of the Host that needs to be updated (confirm input by pressing Enter):",
                 "\nInvalid host ID entered, please try again.");
             
-            var newHostName = _io.ReadString("Enter updated Host name:", true, "Host name can not be empty, please try again.");
-            var newHostAddress = _io.ReadString("Enter updated Host address:", true, "Host address can not be empty, please try again.");
+            var newHostName = _io.ReadString("Enter updated Host name:", true, "Host name can not be empty, please try again.").Trim();
+            var newHostAddress = _io.ReadString("Enter updated Host address:", true, "Host address can not be empty, please try again.").Trim();
             
             _hostsService.EditHostById(hostIdToUpdate, newHostName, newHostAddress);
             
@@ -180,7 +180,7 @@ public class BookingApplication
     {
         BookingApplicationActionType currentActionType;
         int loopCounter;
-        bool isLastIteration;
+        bool isLastMenuItemsIteration;
         
         while (true)
         {
@@ -190,8 +190,8 @@ public class BookingApplication
             
             foreach (var actionType in _actions)
             {
-                isLastIteration = loopCounter++ == _actions.Count;
-                _io.Write($"- press {(int)actionType.Key} to {actionType.Value}{(isLastIteration ? "." : ";")}");
+                isLastMenuItemsIteration = loopCounter++ == _actions.Count;
+                _io.Write($"- press {(int)actionType.Key} to {actionType.Value}{(isLastMenuItemsIteration ? "." : ";")}");
             }
 
             currentActionType = _io.ReadEnumValue<BookingApplicationActionType>("", true, "Invalid action selected selected, please try again.");

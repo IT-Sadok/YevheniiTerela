@@ -4,13 +4,14 @@ public class InMemoryHostStorage : IHostStorage
 {
     private List<Host> _hosts;
     
+    private int _currentLargestHostId; // is used internally to generate id for newly-added Hosts
 
     public InMemoryHostStorage()
     {
         // creating hardcoded in-memory Hosts
-        var host1 = new Host { Id = 5, Name = "Hotel \'California\'", Address = "Main Street, 1" };
-        var host2 = new Host { Id = 8, Name = "Hotel \'Minnesota\'", Address = "Main Street, 5" };
-        var host3 = new Host { Id = 14, Name = "Hotel \'Minnesota\'", Address = "Secondary Street, 53" };
+        var host1 = new Host { Id = 14, Name = "Hotel \'Minnesota\'", Address = "Secondary Street, 53" };
+        var host2 = new Host { Id = 5, Name = "Hotel \'California\'", Address = "Main Street, 1" };
+        var host3 = new Host { Id = 8, Name = "Hotel \'Minnesota\'", Address = "Main Street, 5" };
 
 
         // adding Apartments to Hosts with creating Apartments "on the fly"
@@ -31,6 +32,18 @@ public class InMemoryHostStorage : IHostStorage
         });
         
         _hosts = new List<Host>{ host1, host2, host3 };
+
+        //storing largest host-ID to _currentLargestHostId
+        foreach (var host in _hosts)
+        {
+            if (_currentLargestHostId < host.Id) _currentLargestHostId = host.Id;
+        }
+    }
+
+
+    private static int CompareHostsById(Host host1, Host host2)
+    {
+        return host1.Id.CompareTo(host2.Id);
     }
     
     
@@ -56,17 +69,11 @@ public class InMemoryHostStorage : IHostStorage
             && !ignoredIds.Contains(host.Id)
         );
     }
-
-
-    public Host? FindLastAddedHost()
-    {
-        return _hosts.LastOrDefault();
-    }
     
 
-    public void SaveHost(Host host)
+    public void CreateHost(string hostName, string address)
     {
-        _hosts.Add(host);
+        _hosts.Add(new Host { Id = ++_currentLargestHostId, Name = hostName, Address = address });
     }
 
 

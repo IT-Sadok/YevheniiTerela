@@ -8,9 +8,7 @@ public interface IHostStorage
     
     public Host? FindHostByNameAndAddress(string hostName, string address, List<int>? ignoredHostIds = null);
     
-    public Host? FindLastAddedHost();
-    
-    public void SaveHost(Host host);
+    public void CreateHost(string hostName, string address);
     
     public int FindHostsCount();
     
