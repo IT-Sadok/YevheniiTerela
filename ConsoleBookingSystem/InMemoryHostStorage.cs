@@ -46,9 +46,15 @@ public class InMemoryHostStorage : IHostStorage
     }
 
 
-    public Host? FindHostByNameAndAddress(string hostName, string address)
+    public Host? FindHostByNameAndAddress(string hostName, string address, List<int>? ignoredHostIds = null)
     {
-        return _hosts.FirstOrDefault(host => host.Name.ToLower() == hostName.ToLower() && host.Address.ToLower() == address.ToLower());
+        List<int> ignoredIds = ignoredHostIds != null ? ignoredHostIds : [];
+        
+        return _hosts.FirstOrDefault(host => 
+            host.Name.ToLower() == hostName.ToLower() 
+            && host.Address.ToLower() == address.ToLower() 
+            && !ignoredIds.Contains(host.Id)
+        );
     }
 
 

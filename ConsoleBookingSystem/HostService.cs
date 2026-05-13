@@ -29,9 +29,13 @@ public class HostService
     }
 
 
-    public bool HostExistsByNameAndAddress(string name, string address)
+    public bool HostExistsByNameAndAddress(string name, string address, int? hostIdToIgnore = null)
     {
-        return _hostStorage.FindHostByNameAndAddress(name, address) != null;
+        return _hostStorage.FindHostByNameAndAddress(
+            name, 
+            address, 
+            hostIdToIgnore != null ? new List<int> { (int)hostIdToIgnore } : []
+        ) != null;
     }
 
 
@@ -67,12 +71,10 @@ public class HostService
 
     public void EditHostById(int hostId, string updatedHostName, string updatedAddress)
     {
-        var updatedHost = _hostStorage.FindHostById(hostId);
-        
-        if (updatedHost == null)
+        if (!HostExistsById(hostId))
             throw new Exception($"Host with ID = {hostId} not found.");
 
-        if (HostExistsByNameAndAddress(updatedHostName, updatedAddress))
+        if (HostExistsByNameAndAddress(updatedHostName, updatedAddress, hostId))
             throw new Exception("Host with specified Name and Address already exists.");
         
         _hostStorage.UpdateHost(hostId, updatedHostName, updatedAddress);

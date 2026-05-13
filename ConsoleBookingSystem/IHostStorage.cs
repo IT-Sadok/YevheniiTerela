@@ -6,7 +6,7 @@ public interface IHostStorage
     
     public Host? FindHostById(int hostId);
     
-    public Host? FindHostByNameAndAddress(string hostName, string address);
+    public Host? FindHostByNameAndAddress(string hostName, string address, List<int>? ignoredHostIds = null);
     
     public Host? FindLastAddedHost();
     
