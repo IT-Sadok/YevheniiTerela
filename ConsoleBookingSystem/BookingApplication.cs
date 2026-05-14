@@ -176,11 +176,41 @@ public class BookingApplication
     }
 
 
-    void ShowActionsMenu()
+    ProcessedBookingApplicationActionResult ProcessAction()
     {
         BookingApplicationActionType currentActionType;
+            
+        currentActionType = _io.ReadEnumValue<BookingApplicationActionType>("", true, "Invalid action selected selected, please try again.");
+
+        switch (currentActionType)
+        {
+            case BookingApplicationActionType.ShowAllHosts: HandleShowAllHostsAction(); break;
+            case BookingApplicationActionType.ShowHostDetails: HandleShowHostDetailsAction(); break;
+            case BookingApplicationActionType.AddNewHost: HandleAddNewHostAction(); break;
+            case BookingApplicationActionType.RemoveHost: HandleRemoveHostAction(); break;
+            case BookingApplicationActionType.UpdateHost: HandleUpdateHostAction(); break;
+            case BookingApplicationActionType.ExitApplication:
+            {
+                HandleExitAppAction();
+                return ProcessedBookingApplicationActionResult.GotExitApplicationRequest;
+            }
+            default:
+            {
+                HandleInvalidActionInput();
+                // "continue;" keyword is for new iteration of while loop, related to switch {}
+                return ProcessedBookingApplicationActionResult.GotInvalidAction;
+            }
+        }
+        
+        return ProcessedBookingApplicationActionResult.GotAndProcessedValidAction;
+    }
+
+
+    void ShowActionsMenu()
+    {
         int loopCounter;
         bool isLastMenuItemsIteration;
+        ProcessedBookingApplicationActionResult actionResult;
         
         while (true)
         {
@@ -193,27 +223,17 @@ public class BookingApplication
                 isLastMenuItemsIteration = loopCounter++ == _actions.Count;
                 _io.Write($"- press {(int)actionType.Key} to {actionType.Value}{(isLastMenuItemsIteration ? "." : ";")}");
             }
-
-            currentActionType = _io.ReadEnumValue<BookingApplicationActionType>("", true, "Invalid action selected selected, please try again.");
-
-            switch (currentActionType)
+            
+            actionResult = ProcessAction();
+            
+            // changing normal infinite-menu-display flow in case if run into edge case in ProcessCurrentAction()
+            // (like when user requested to exit app; or when invalid action received from user
+            switch (actionResult)
             {
-                case BookingApplicationActionType.ShowAllHosts: HandleShowAllHostsAction(); break;
-                case BookingApplicationActionType.ShowHostDetails: HandleShowHostDetailsAction(); break;
-                case BookingApplicationActionType.AddNewHost: HandleAddNewHostAction(); break;
-                case BookingApplicationActionType.RemoveHost: HandleRemoveHostAction(); break;
-                case BookingApplicationActionType.UpdateHost: HandleUpdateHostAction(); break;
-                case BookingApplicationActionType.ExitApplication:
-                {
-                    HandleExitAppAction();
-                    return;
-                }
-                default:
-                {
-                    HandleInvalidActionInput();
-                    // "continue;" keyword is for new iteration of while loop, related to switch {}
-                    continue;
-                }
+                case ProcessedBookingApplicationActionResult.GotExitApplicationRequest: 
+                    return; // finishing the program
+                case ProcessedBookingApplicationActionResult.GotInvalidAction:
+                    continue; // interrupting current iteration here and starting new iteration
             }
 
             _io.RequireAnyKey("\n==== Press any key to continue ====");
