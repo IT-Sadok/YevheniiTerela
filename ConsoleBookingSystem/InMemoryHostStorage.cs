@@ -71,9 +71,9 @@ public class InMemoryHostStorage : IHostStorage
     }
     
 
-    public void CreateHost(string hostName, string address)
+    public void CreateHost(CreateHostData createHostData)
     {
-        _hosts.Add(new Host { Id = ++_currentLargestHostId, Name = hostName, Address = address });
+        _hosts.Add(new Host { Id = ++_currentLargestHostId, Name = createHostData.Name, Address = createHostData.Address });
     }
 
 

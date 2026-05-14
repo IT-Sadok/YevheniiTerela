@@ -46,7 +46,7 @@ public class HostService
             throw new Exception("Host with specified name and address already exists.");
         }
         
-        _hostStorage.CreateHost(hostName, address);
+        _hostStorage.CreateHost(new CreateHostData { Name = hostName, Address = address });
     }
 
 
