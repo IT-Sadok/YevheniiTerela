@@ -1,6 +1,6 @@
 namespace ConsoleBookingSystem;
 
-public class ConsoleInputOutput
+public class ConsoleInputOutput : IConsoleInputOutput
 {
     public void Write(string message)
     {

@@ -4,7 +4,7 @@ public class BookingApplication
 {
     private IHostRepository _hostsRepository;
     private IHostService _hostsService;
-    private ConsoleInputOutput _io;
+    private IConsoleInputOutput _io;
     private Dictionary<BookingApplicationActionType, string> _actions =  new Dictionary<BookingApplicationActionType, string>
     {
         { BookingApplicationActionType.ShowAllHosts, "Show all Hosts" },
