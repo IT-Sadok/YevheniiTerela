@@ -1,6 +1,6 @@
 namespace ConsoleBookingSystem;
 
-public interface IHostStorage
+public interface IHostRepository
 {
     public List<Host> FindAllHosts();
     

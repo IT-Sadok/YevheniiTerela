@@ -2,7 +2,7 @@ namespace ConsoleBookingSystem;
 
 public class BookingApplication
 {
-    private IHostStorage _hostsStorage;
+    private IHostRepository _hostsRepository;
     private HostService _hostsService;
     private ConsoleInputOutput _io;
     private Dictionary<BookingApplicationActionType, string> _actions =  new Dictionary<BookingApplicationActionType, string>
@@ -18,8 +18,8 @@ public class BookingApplication
     
     public BookingApplication()
     {
-        _hostsStorage = new InMemoryHostStorage();
-        _hostsService = new HostService(_hostsStorage);
+        _hostsRepository = new InMemoryHostRepository();
+        _hostsService = new HostService(_hostsRepository);
         _io = new ConsoleInputOutput();
     }
 

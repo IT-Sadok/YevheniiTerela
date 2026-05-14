@@ -1,12 +1,12 @@
 namespace ConsoleBookingSystem;
 
-public class InMemoryHostStorage : IHostStorage
+public class InMemoryHostRepository : IHostRepository
 {
     private List<Host> _hosts;
     
     private int _currentLargestHostId; // is used internally to generate id for newly-added Hosts
 
-    public InMemoryHostStorage()
+    public InMemoryHostRepository()
     {
         // creating hardcoded in-memory Hosts
         var host1 = new Host { Id = 14, Name = "Hotel \'Minnesota\'", Address = "Secondary Street, 53" };

@@ -2,36 +2,36 @@ namespace ConsoleBookingSystem;
 
 public class HostService
 {
-    private IHostStorage _hostStorage;
+    private IHostRepository _hostRepository;
     
 
-    public HostService(IHostStorage hostStorage)
+    public HostService(IHostRepository hostRepository)
     {
-        _hostStorage = hostStorage;
+        _hostRepository = hostRepository;
     }
     
 
     public List<Host> GetHosts()
     {
-        return _hostStorage.FindAllHosts();
+        return _hostRepository.FindAllHosts();
     }
     
     
     public Host? GetHostById(int hostId)
     {
-        return _hostStorage.FindHostById(hostId);
+        return _hostRepository.FindHostById(hostId);
     }
     
     
     public bool HostExistsById(int hostId)
     {
-        return _hostStorage.FindHostById(hostId) != null;
+        return _hostRepository.FindHostById(hostId) != null;
     }
 
 
     public bool HostExistsByNameAndAddress(string name, string address, int? hostIdToIgnore = null)
     {
-        return _hostStorage.FindHostByNameAndAddress(
+        return _hostRepository.FindHostByNameAndAddress(
             name, 
             address, 
             hostIdToIgnore != null ? new List<int> { (int)hostIdToIgnore } : []
@@ -46,24 +46,24 @@ public class HostService
             throw new Exception("Host with specified name and address already exists.");
         }
         
-        _hostStorage.CreateHost(new CreateHostData { Name = hostName, Address = address });
+        _hostRepository.CreateHost(new CreateHostData { Name = hostName, Address = address });
     }
 
 
     public void RemoveHostById(int hostId)
     {
-        if (_hostStorage.FindHostsCount() == 0)
+        if (_hostRepository.FindHostsCount() == 0)
         {
             throw new Exception("No Hosts added yet.");
         }
             
-        var host = _hostStorage.FindHostById(hostId);
+        var host = _hostRepository.FindHostById(hostId);
         if (host == null)
         {
             throw new Exception($"Host with ID = {hostId} not found.");
         }
         
-        _hostStorage.RemoveHost(host);
+        _hostRepository.RemoveHost(host);
     }
 
 
@@ -75,6 +75,6 @@ public class HostService
         if (HostExistsByNameAndAddress(updatedHostName, updatedAddress, hostId))
             throw new Exception("Host with specified Name and Address already exists.");
         
-        _hostStorage.UpdateHost(hostId, new UpdateHostData { Name = updatedHostName, Address = updatedAddress });
+        _hostRepository.UpdateHost(hostId, new UpdateHostData { Name = updatedHostName, Address = updatedAddress });
     }
 }
