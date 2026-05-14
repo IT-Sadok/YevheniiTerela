@@ -26,7 +26,7 @@ public class BookingApplication
         ShowActionsMenu();
     }
 
-    void ShowActionsMenu()
+    private void ShowActionsMenu()
     {
         int loopCounter;
         bool isLastMenuItemsIteration;
@@ -62,7 +62,7 @@ public class BookingApplication
         }
     }
 
-    ProcessedBookingApplicationActionResult ProcessAction()
+    private ProcessedBookingApplicationActionResult ProcessAction()
     {
         BookingApplicationActionType currentActionType;
             
@@ -109,7 +109,7 @@ public class BookingApplication
         return hostIdToRetrieve;
     }
     
-    void HandleShowAllHostsAction()
+    private void HandleShowAllHostsAction()
     {
         _io.Write("\n===== List of all Hosts =====\n");
         
@@ -127,7 +127,7 @@ public class BookingApplication
         }
     }
     
-    void HandleShowHostDetailsAction()
+    private void HandleShowHostDetailsAction()
     {
         var searchedHostId = TryRetrieveHostId(
             "\nEnter ID of the Host you are searching for (confirm input by pressing Enter):",
@@ -156,7 +156,7 @@ public class BookingApplication
         }
     }
 
-    void HandleAddNewHostAction()
+    private void HandleAddNewHostAction()
     {
         _io.Write("\n==== You are adding new Host: ====\n");
         
@@ -177,7 +177,7 @@ public class BookingApplication
         }
     }
 
-    void HandleRemoveHostAction()
+    private void HandleRemoveHostAction()
     {
         _io.Write("\n==== You are removing a Host: ====");
         
@@ -199,7 +199,7 @@ public class BookingApplication
         }
     }
     
-    void HandleUpdateHostAction()
+    private void HandleUpdateHostAction()
     {
         _io.Write("\n==== You are updating a particular Host's data ====");
         
@@ -225,12 +225,12 @@ public class BookingApplication
         }
     }
     
-    void HandleExitAppAction()
+    private void HandleExitAppAction()
     {
         _io.Write("\nExiting... See you next time!");
     }
     
-    void HandleInvalidActionInput()
+    private void HandleInvalidActionInput()
     {
         _io.Write("\nInvalid number: a number for an action must be between 0 and 2.");
     }
