@@ -14,5 +14,5 @@ public interface IHostStorage
     
     public void RemoveHost(Host host);
     
-    public void UpdateHost(int hostId, string hostName, string address);
+    public void UpdateHost(int hostId, UpdateHostData  updateHostData);
 }

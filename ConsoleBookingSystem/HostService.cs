@@ -75,6 +75,6 @@ public class HostService
         if (HostExistsByNameAndAddress(updatedHostName, updatedAddress, hostId))
             throw new Exception("Host with specified Name and Address already exists.");
         
-        _hostStorage.UpdateHost(hostId, updatedHostName, updatedAddress);
+        _hostStorage.UpdateHost(hostId, new UpdateHostData { Name = updatedHostName, Address = updatedAddress });
     }
 }

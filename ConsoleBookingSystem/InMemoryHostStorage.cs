@@ -89,14 +89,14 @@ public class InMemoryHostStorage : IHostStorage
     }
 
 
-    public void UpdateHost(int hostId, string hostName, string address)
+    public void UpdateHost(int hostId, UpdateHostData updateHostData)
     {
         var hostToUpdate = _hosts.FirstOrDefault(h => h.Id == hostId);
         
         if (hostToUpdate == null) 
             throw new Exception($"Update failed. Host with ID = {hostId} not found.");
         
-        hostToUpdate.Name = hostName;
-        hostToUpdate.Address = address;
+        hostToUpdate.Name = updateHostData.Name;
+        hostToUpdate.Address = updateHostData.Address;
     }
 }
