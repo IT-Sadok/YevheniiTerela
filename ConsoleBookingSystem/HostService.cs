@@ -1,6 +1,6 @@
 namespace ConsoleBookingSystem;
 
-public class HostService
+public class HostService : IHostService
 {
     private IHostRepository _hostRepository;
     

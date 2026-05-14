@@ -3,7 +3,7 @@ namespace ConsoleBookingSystem;
 public class BookingApplication
 {
     private IHostRepository _hostsRepository;
-    private HostService _hostsService;
+    private IHostService _hostsService;
     private ConsoleInputOutput _io;
     private Dictionary<BookingApplicationActionType, string> _actions =  new Dictionary<BookingApplicationActionType, string>
     {
