@@ -39,12 +39,6 @@ public class InMemoryHostStorage : IHostStorage
             if (_currentLargestHostId < host.Id) _currentLargestHostId = host.Id;
         }
     }
-
-
-    private static int CompareHostsById(Host host1, Host host2)
-    {
-        return host1.Id.CompareTo(host2.Id);
-    }
     
     
     public List<Host> FindAllHosts()
