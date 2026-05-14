@@ -3,32 +3,27 @@ namespace ConsoleBookingSystem;
 public class HostService : IHostService
 {
     private IHostRepository _hostRepository;
-    
 
     public HostService(IHostRepository hostRepository)
     {
         _hostRepository = hostRepository;
     }
-    
 
     public List<Host> GetHosts()
     {
         return _hostRepository.FindAllHosts();
     }
     
-    
     public Host? GetHostById(int hostId)
     {
         return _hostRepository.FindHostById(hostId);
     }
     
-    
     public bool HostExistsById(int hostId)
     {
         return _hostRepository.FindHostById(hostId) != null;
     }
-
-
+    
     public bool HostExistsByNameAndAddress(string name, string address, int? hostIdToIgnore = null)
     {
         return _hostRepository.FindHostByNameAndAddress(
@@ -37,7 +32,6 @@ public class HostService : IHostService
             hostIdToIgnore != null ? new List<int> { (int)hostIdToIgnore } : []
         ) != null;
     }
-
 
     public void AddHost(string hostName, string address)
     {
@@ -48,7 +42,6 @@ public class HostService : IHostService
         
         _hostRepository.CreateHost(new CreateHostData { Name = hostName, Address = address });
     }
-
 
     public void RemoveHostById(int hostId)
     {
@@ -65,7 +58,6 @@ public class HostService : IHostService
         
         _hostRepository.RemoveHost(host);
     }
-
 
     public void EditHostById(int hostId, string updatedHostName, string updatedAddress)
     {

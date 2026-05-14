@@ -8,7 +8,6 @@ public class Apartment
     public int Number { get; set; }
     public double Price { get; set; }
     public bool IsBooked { get; set; } = false;
-    
 
     public override string ToString()
     {

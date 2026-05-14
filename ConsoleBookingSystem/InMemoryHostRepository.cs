@@ -3,7 +3,6 @@ namespace ConsoleBookingSystem;
 public class InMemoryHostRepository : IHostRepository
 {
     private List<Host> _hosts;
-    
     private int _currentLargestHostId; // is used internally to generate id for newly-added Hosts
 
     public InMemoryHostRepository()
@@ -40,18 +39,15 @@ public class InMemoryHostRepository : IHostRepository
         }
     }
     
-    
     public List<Host> FindAllHosts()
     {
         return _hosts;
     }
-    
 
     public Host? FindHostById(int hostId)
     {
         return _hosts.FirstOrDefault(host => host.Id == hostId);
     }
-
 
     public Host? FindHostByNameAndAddress(string hostName, string address, List<int>? ignoredHostIds = null)
     {
@@ -63,26 +59,22 @@ public class InMemoryHostRepository : IHostRepository
             && !ignoredIds.Contains(host.Id)
         );
     }
-    
 
     public void CreateHost(CreateHostData createHostData)
     {
         _hosts.Add(new Host { Id = ++_currentLargestHostId, Name = createHostData.Name, Address = createHostData.Address });
     }
 
-
     public int FindHostsCount()
     {
         return _hosts.Count;
     }
 
-
     public void RemoveHost(Host host)
     {
         _hosts.Remove(host);
     }
-
-
+    
     public void UpdateHost(int hostId, UpdateHostData updateHostData)
     {
         var hostToUpdate = _hosts.FirstOrDefault(h => h.Id == hostId);

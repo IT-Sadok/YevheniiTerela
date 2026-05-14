@@ -7,7 +7,6 @@ public class ConsoleInputOutput : IConsoleInputOutput
         Console.WriteLine(message);
     }
     
-    
     public int ReadInt(string message, bool retryOnInvalid = false, string retryMessage = "Invalid input. Please try again.")
     {
         Write(message);
@@ -30,7 +29,6 @@ public class ConsoleInputOutput : IConsoleInputOutput
         
         return result;
     }
-
 
     public int ReadIntFromKey(string message, bool retryOnInvalid = false, string retryMessage = "Invalid input. Please try again.")
     {
@@ -55,14 +53,12 @@ public class ConsoleInputOutput : IConsoleInputOutput
         return result;
     }
     
-    
     public void RequireAnyKey(string message = "")
     {
         Write(message);
         Console.ReadKey();
     }
-
-
+    
     public T ReadEnumValue<T>(string message, bool retryOnInvalid = false, string retryMessage = "Invalid input. Please try again.") where T : struct
     {
         Write(message);
@@ -85,7 +81,6 @@ public class ConsoleInputOutput : IConsoleInputOutput
         
         return returnValue;
     }
-
 
     public string ReadString(string message, bool retryOnEmptyString = false, string retryMessage = "Input is empty, please enter a valid string.")
     {
