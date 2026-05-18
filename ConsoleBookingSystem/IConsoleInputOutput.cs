@@ -8,4 +8,5 @@ public interface IConsoleInputOutput
     public void RequireAnyKey(string message = "");
     public T ReadEnumValue<T>(string message, bool retryOnInvalid = false, string retryMessage = "Invalid input. Please try again.") where T : struct;
     public string ReadString(string message, bool retryOnEmptyString = false, string retryMessage = "Input is empty, please enter a valid string.");
+    public ConsoleKey ReadPressKey(string message = "");
 }

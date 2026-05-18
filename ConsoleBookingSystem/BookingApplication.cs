@@ -68,8 +68,15 @@ public class BookingApplication
             // (like when user requested to exit app; or when invalid action received from user
             switch (actionResult)
             {
-                case ProcessedBookingApplicationActionResult.GotExitApplicationRequest: 
-                    return; // finishing the program
+                case ProcessedBookingApplicationActionResult.GotExitApplicationRequest:
+                {
+                    if (ConfirmExitApplication()) 
+                    {
+                        HandleExitAppAction();
+                        return; // finishing the program
+                    }
+                    continue; // otherwise - going back to the Menu
+                }
                 case ProcessedBookingApplicationActionResult.GotInvalidAction:
                     continue; // interrupting current iteration here and starting new iteration
             }
@@ -96,7 +103,6 @@ public class BookingApplication
             case BookingApplicationActionType.SaveChanges: HandleSaveChangesAction(); break;
             case BookingApplicationActionType.ExitApplication:
             {
-                HandleExitAppAction();
                 return ProcessedBookingApplicationActionResult.GotExitApplicationRequest;
             }
             default:
@@ -126,6 +132,15 @@ public class BookingApplication
         }
 
         return hostIdToRetrieve;
+    }
+
+    private bool ConfirmExitApplication()
+    {
+        if (!_hostsService.AnyUnsavedChanges())
+            return true;
+        
+        var pressedKey = _io.ReadPressKey("\nThere are unsaved changes which will be lost after exit.\nPress Enter to confirm exit. Press any other key to go back to the Menu.");
+        return pressedKey == ConsoleKey.Enter;
     }
     
     private void HandleShowAllHostsAction()
