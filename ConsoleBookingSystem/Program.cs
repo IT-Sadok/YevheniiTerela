@@ -12,7 +12,7 @@ if (hosts.Count == 0)
 
 // initializing needed dependencies
 var hostRepository = new InMemoryHostRepository(hosts);
-var hostService = new HostService(hostRepository);
+var hostService = new HostService(hostRepository, jsonHostsStorage);
 var io = new ConsoleInputOutput();
 
 // creating booking app instance with passing needed dependencies

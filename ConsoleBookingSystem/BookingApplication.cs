@@ -11,6 +11,7 @@ public class BookingApplication
         { BookingApplicationActionType.AddNewHost, "Add new Host" },
         { BookingApplicationActionType.RemoveHost, "Remove Host by ID" },
         { BookingApplicationActionType.UpdateHost, "Update Host by ID" },
+        { BookingApplicationActionType.SaveChanges, "Save Changes" },
         { BookingApplicationActionType.ExitApplication, "Exit the application" },
     };
     
@@ -24,6 +25,23 @@ public class BookingApplication
     {
         _io.Write("\n============= Hello, this is Booking System app! =============\n");
         ShowActionsMenu();
+    }
+
+    private string FormatActionMenuItemName(KeyValuePair<BookingApplicationActionType, string> actionType, string appendString)
+    {
+        string actionMenuItemName = $"- press {(int)actionType.Key} to {actionType.Value}";
+        
+        switch (actionType.Key)
+        {
+            case BookingApplicationActionType.SaveChanges:
+            {
+                bool anyChanges = _hostsService.AnyUnsavedChanges();
+                actionMenuItemName += anyChanges ? " (there are unsaved changes)" : " (no unsaved changes)";
+                break;
+            }
+        }
+        
+        return actionMenuItemName + appendString;
     }
 
     private void ShowActionsMenu()
@@ -41,7 +59,7 @@ public class BookingApplication
             foreach (var actionType in _actions)
             {
                 isLastMenuItemsIteration = loopCounter++ == _actions.Count;
-                _io.Write($"- press {(int)actionType.Key} to {actionType.Value}{(isLastMenuItemsIteration ? "." : ";")}");
+                _io.Write(FormatActionMenuItemName(actionType, isLastMenuItemsIteration ? "." : ";"));
             }
             
             actionResult = ProcessAction();
@@ -75,6 +93,7 @@ public class BookingApplication
             case BookingApplicationActionType.AddNewHost: HandleAddNewHostAction(); break;
             case BookingApplicationActionType.RemoveHost: HandleRemoveHostAction(); break;
             case BookingApplicationActionType.UpdateHost: HandleUpdateHostAction(); break;
+            case BookingApplicationActionType.SaveChanges: HandleSaveChangesAction(); break;
             case BookingApplicationActionType.ExitApplication:
             {
                 HandleExitAppAction();
@@ -223,6 +242,26 @@ public class BookingApplication
             // (Host with specified ID was not found, etc)
             _io.Write($"\n{exception.Message}");
         }
+    }
+
+    private void HandleSaveChangesAction()
+    {
+        if (_hostsService.AnyUnsavedChanges())
+        {
+            try
+            {
+                _hostsService.SaveChanges();
+                _io.Write("\nChanges were saved successfully!");
+            }
+            catch (Exception exception)
+            {
+                _io.Write("Something went wrong during saving changes: " + exception.Message);
+            }
+            
+            return;
+        }
+        
+        _io.Write("\nNo changes to save yet.");
     }
     
     private void HandleExitAppAction()

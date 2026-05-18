@@ -2,11 +2,14 @@ namespace ConsoleBookingSystem;
 
 public class HostService : IHostService
 {
+    private bool _anyUnsavedChanges = false;
     private IHostRepository _hostRepository;
+    private IHostFileStorage _hostFileStorage;
 
-    public HostService(IHostRepository hostRepository)
+    public HostService(IHostRepository hostRepository, IHostFileStorage hostFileStorage)
     {
         _hostRepository = hostRepository;
+        _hostFileStorage = hostFileStorage;
     }
 
     public List<Host> GetHosts()
@@ -41,6 +44,8 @@ public class HostService : IHostService
         }
         
         _hostRepository.CreateHost(new CreateHostData { Name = hostName, Address = address });
+        
+        SetAnyUnsavedChanges(true);
     }
 
     public void RemoveHostById(int hostId)
@@ -57,6 +62,8 @@ public class HostService : IHostService
         }
         
         _hostRepository.RemoveHost(host);
+        
+        SetAnyUnsavedChanges(true);
     }
 
     public void EditHostById(int hostId, string updatedHostName, string updatedAddress)
@@ -68,5 +75,23 @@ public class HostService : IHostService
             throw new Exception("Host with specified Name and Address already exists.");
         
         _hostRepository.UpdateHost(hostId, new UpdateHostData { Name = updatedHostName, Address = updatedAddress });
+        
+        SetAnyUnsavedChanges(true);
+    }
+
+    public void SaveChanges()
+    {
+        _hostFileStorage.WriteData(_hostRepository.FindAllHosts());
+        SetAnyUnsavedChanges(false);
+    }
+    
+    private void SetAnyUnsavedChanges(bool anyUnsavedChanges)
+    {
+        _anyUnsavedChanges = anyUnsavedChanges;
+    }
+    
+    public bool AnyUnsavedChanges()
+    {
+        return _anyUnsavedChanges;
     }
 }

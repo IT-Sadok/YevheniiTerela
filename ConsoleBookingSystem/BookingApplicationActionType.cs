@@ -7,5 +7,6 @@ public enum BookingApplicationActionType
     AddNewHost = 3,
     RemoveHost = 4,
     UpdateHost = 5,
+    SaveChanges = 6,
     ExitApplication = 0,
 }
