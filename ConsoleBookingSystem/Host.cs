@@ -7,7 +7,6 @@ public class Host
     public string Address { get; set; }
     public List<Apartment> Apartments { get; set; } = [];
 
-
     public override string ToString()
     {
         return $"ID={Id} --> {Name}, {Address} ({Apartments.Count} apartments)";
