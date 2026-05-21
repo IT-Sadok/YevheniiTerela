@@ -9,4 +9,5 @@ public interface IHostRepository
     public int FindHostsCount();
     public void RemoveHost(Host host);
     public void UpdateHost(int hostId, UpdateHostData updateHostData);
+    public void SaveChanges();
 }

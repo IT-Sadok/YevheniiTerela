@@ -1,14 +1,27 @@
 namespace ConsoleBookingSystem;
 
-public class InMemoryHostRepository : IHostRepository
+public class JsonFileHostRepository : IHostRepository
 {
     private List<Host> _hosts;
     private int _currentLargestHostId; // is used internally to generate id for newly-added Hosts
+    private IPersistence<List<Host>> _hostsPersistenceStorage;
+    private IHostSeeder? _hostSeeder;
 
-    public InMemoryHostRepository(List<Host> hosts)
+    public JsonFileHostRepository(IPersistence<List<Host>> hostsPersistenceStorage, IHostSeeder? hostSeeder = null)
     {
-        _hosts = hosts;
+        // initializing  dependencies
+        _hostsPersistenceStorage = hostsPersistenceStorage;
+        _hostSeeder = hostSeeder;
+    }
 
+    public void LoadHostsFromPersistentStorage()
+    {
+        _hosts = _hostsPersistenceStorage.ReadData() ?? [];
+        SetCurrentLargestHostId();
+    }
+
+    private void SetCurrentLargestHostId()
+    {
         //storing largest host-ID to _currentLargestHostId
         foreach (var host in _hosts)
         {
@@ -65,6 +78,6 @@ public class InMemoryHostRepository : IHostRepository
 
     public void SaveChanges()
     {
-        // this method is not expected to do anything for current implementation of IHostRepository
+        _hostsPersistenceStorage.WriteData(_hosts);
     }
 }

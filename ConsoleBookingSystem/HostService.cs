@@ -4,12 +4,10 @@ public class HostService : IHostService
 {
     private bool _anyUnsavedChanges = false;
     private IHostRepository _hostRepository;
-    private IHostFileStorage _hostFileStorage;
 
-    public HostService(IHostRepository hostRepository, IHostFileStorage hostFileStorage)
+    public HostService(IHostRepository hostRepository)
     {
         _hostRepository = hostRepository;
-        _hostFileStorage = hostFileStorage;
     }
 
     public List<Host> GetHosts()
@@ -81,8 +79,16 @@ public class HostService : IHostService
 
     public void SaveChanges()
     {
-        _hostFileStorage.WriteData(_hostRepository.FindAllHosts());
-        SetAnyUnsavedChanges(false);
+        try
+        {
+            _hostRepository.SaveChanges();
+            SetAnyUnsavedChanges(false);
+        }
+        catch (Exception exception)
+        {
+            throw new Exception(exception.Message);
+        }
+        
     }
     
     private void SetAnyUnsavedChanges(bool anyUnsavedChanges)
