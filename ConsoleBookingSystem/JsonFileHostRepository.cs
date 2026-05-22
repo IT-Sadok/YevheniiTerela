@@ -70,7 +70,7 @@ public class JsonFileHostRepository : IHostRepository
         var hostToUpdate = _hosts.FirstOrDefault(h => h.Id == hostId);
         
         if (hostToUpdate == null) 
-            throw new Exception($"Update failed. Host with ID = {hostId} not found.");
+            return;
         
         hostToUpdate.Name = updateHostData.Name;
         hostToUpdate.Address = updateHostData.Address;

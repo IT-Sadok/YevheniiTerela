@@ -203,11 +203,12 @@ public class BookingApplication
             // this line is expected to be shown when Host removed successfully
             _io.Write("\nHost added successfully!");
         }
-        catch (Exception exception)
+        catch (ArgumentException exception)
         {
             // this line is expected to be shown when there was an error during adding a Host
             // (Host with specified name and address already exists, etc)
-            _io.Write($"\n{exception.Message}");
+            _io.Write("\nInvalid arguments entered.");
+            _io.Write($"{exception.Message}");
         }
     }
 
@@ -219,43 +220,58 @@ public class BookingApplication
             "\nEnter ID of the Host that needs to be removed (confirm input by pressing Enter):",
             "\nInvalid host ID entered, please try again."
         );
+        
         try
         {
             _hostsService.RemoveHostById(hostIdToRemove);
             // this line is expected to be shown when Host removed successfully
             _io.Write("\nHost removed successfully!");
         }
-        catch (Exception exception)
+        catch (ArgumentOutOfRangeException exception)
         {
-            // this line is expected to be shown when there was an error during deleting a Host
-            // (Host with specified ID was not found, etc)
-            _io.Write($"\n{exception.Message}");
+            _io.Write("\nInvalid arguments entered.");
+            _io.Write($"{exception.Message}");
+        }
+        catch (HostNotFoundException exception)
+        {
+            if (exception.HostId != null)
+                _io.Write($"\nHost with with ID = {exception.HostId} not found!");
+            else 
+                _io.Write("\nNo data found.");
         }
     }
     
     private void HandleUpdateHostAction()
     {
         _io.Write("\n==== You are updating a particular Host's data ====");
-        
+
         try
         {
             int hostIdToUpdate = TryRetrieveHostId(
                 "\nEnter ID of the Host that needs to be updated (confirm input by pressing Enter):",
                 "\nInvalid host ID entered, please try again.");
-            
-            var newHostName = _io.ReadString("Enter updated Host name:", true, "Host name can not be empty, please try again.").Trim();
-            var newHostAddress = _io.ReadString("Enter updated Host address:", true, "Host address can not be empty, please try again.").Trim();
-            
+
+            var newHostName = _io.ReadString("Enter updated Host name:", true,
+                "Host name can not be empty, please try again.").Trim();
+            var newHostAddress = _io.ReadString("Enter updated Host address:", true,
+                "Host address can not be empty, please try again.").Trim();
+
             _hostsService.EditHostById(hostIdToUpdate, newHostName, newHostAddress);
-            
+
             // this line is expected to be shown when Host removed successfully
             _io.Write("\nHost is updated successfully!");
         }
-        catch (Exception exception)
+        catch (ArgumentException exception)
         {
-            // this line is expected to be shown when there was an error during deleting a Host
-            // (Host with specified ID was not found, etc)
-            _io.Write($"\n{exception.Message}");
+            _io.Write("\nInvalid argument entered.");
+            _io.Write($"{exception.Message}");
+        }
+        catch (HostNotFoundException exception)
+        {
+            if (exception.HostId != null)
+                _io.Write($"\nHost with with ID = {exception.HostId} not found!");
+            else 
+                _io.Write("\nNo data found.");
         }
     }
 

@@ -13,7 +13,7 @@ try
 }
 catch (Exception exception)
 {
-    io.Write("Something went wrong during loading data from storage:");
+    io.Write("\nSomething went wrong during loading data from storage:");
     io.Write(exception.Message);
     io.Write("Exiting the application...");
     return;
