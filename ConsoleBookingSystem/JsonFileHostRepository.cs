@@ -5,23 +5,16 @@ public class JsonFileHostRepository : IHostRepository
     private List<Host> _hosts;
     private int _currentLargestHostId; // is used internally to generate id for newly-added Hosts
     private IPersistence<List<Host>> _hostsPersistenceStorage;
-    private IHostSeeder? _hostSeeder;
 
-    public JsonFileHostRepository(IPersistence<List<Host>> hostsPersistenceStorage, IHostSeeder? hostSeeder = null)
+    public JsonFileHostRepository(IPersistence<List<Host>> hostsPersistenceStorage)
     {
         // initializing  dependencies
         _hostsPersistenceStorage = hostsPersistenceStorage;
-        _hostSeeder = hostSeeder;
-    }
-
-    public void LoadHostsFromPersistentStorage()
-    {
+        
+        // ReadData() throws a PersistenceException
+        // so initializing of JsonFileHostRepository should be wrapped with try-catch
         _hosts = _hostsPersistenceStorage.ReadData() ?? [];
-        SetCurrentLargestHostId();
-    }
-
-    private void SetCurrentLargestHostId()
-    {
+        
         //storing largest host-ID to _currentLargestHostId
         foreach (var host in _hosts)
         {
