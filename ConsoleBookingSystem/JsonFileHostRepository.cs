@@ -4,7 +4,7 @@ public class JsonFileHostRepository : IHostRepository
 {
     private List<Host> _hosts;
     private int _currentLargestHostId; // is used internally to generate id for newly-added Hosts
-    private IPersistence<List<Host>> _hostsPersistenceStorage;
+    private readonly IPersistence<List<Host>> _hostsPersistenceStorage;
 
     public JsonFileHostRepository(IPersistence<List<Host>> hostsPersistenceStorage)
     {
@@ -24,7 +24,7 @@ public class JsonFileHostRepository : IHostRepository
     
     public List<Host> FindAllHosts()
     {
-        return _hosts;
+        return _hosts.ToList();
     }
 
     public Host? FindHostById(int hostId)
