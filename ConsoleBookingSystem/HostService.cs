@@ -52,7 +52,7 @@ public class HostService : IHostService
             throw new ArgumentOutOfRangeException(nameof(hostId), "Host ID cannot be zero or negative.");
         
         if (_hostRepository.FindHostsCount() == 0)
-            throw new HostNotFoundException();
+            throw new HostNotFoundException("No Hosts found.");
             
         var host = _hostRepository.FindHostById(hostId);
         if (host == null)
