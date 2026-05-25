@@ -9,4 +9,6 @@ public interface IHostService
     public void AddHost(string hostName, string address);
     public void RemoveHostById(int hostId);
     public void EditHostById(int hostId, string updatedHostName, string updatedAddress);
+    public void SaveChanges();
+    public bool AnyUnsavedChanges();
 }

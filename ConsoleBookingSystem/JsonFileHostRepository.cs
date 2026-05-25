@@ -1,14 +1,20 @@
 namespace ConsoleBookingSystem;
 
-public class InMemoryHostRepository : IHostRepository
+public class JsonFileHostRepository : IHostRepository
 {
     private List<Host> _hosts;
     private int _currentLargestHostId; // is used internally to generate id for newly-added Hosts
+    private readonly IPersistence<List<Host>> _hostsPersistenceStorage;
 
-    public InMemoryHostRepository(List<Host> hosts)
+    public JsonFileHostRepository(IPersistence<List<Host>> hostsPersistenceStorage)
     {
-        _hosts = hosts;
-
+        // initializing  dependencies
+        _hostsPersistenceStorage = hostsPersistenceStorage;
+        
+        // ReadData() throws a PersistenceException
+        // so initializing of JsonFileHostRepository should be wrapped with try-catch
+        _hosts = _hostsPersistenceStorage.ReadData() ?? [];
+        
         //storing largest host-ID to _currentLargestHostId
         foreach (var host in _hosts)
         {
@@ -18,7 +24,7 @@ public class InMemoryHostRepository : IHostRepository
     
     public List<Host> FindAllHosts()
     {
-        return _hosts;
+        return _hosts.ToList();
     }
 
     public Host? FindHostById(int hostId)
@@ -57,7 +63,7 @@ public class InMemoryHostRepository : IHostRepository
         var hostToUpdate = _hosts.FirstOrDefault(h => h.Id == hostId);
         
         if (hostToUpdate == null) 
-            throw new Exception($"Update failed. Host with ID = {hostId} not found.");
+            return;
         
         hostToUpdate.Name = updateHostData.Name;
         hostToUpdate.Address = updateHostData.Address;
@@ -65,6 +71,6 @@ public class InMemoryHostRepository : IHostRepository
 
     public void SaveChanges()
     {
-        // this method is not expected to do anything for current implementation of IHostRepository
+        _hostsPersistenceStorage.WriteData(_hosts);
     }
 }

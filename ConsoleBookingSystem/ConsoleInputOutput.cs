@@ -59,6 +59,12 @@ public class ConsoleInputOutput : IConsoleInputOutput
         Console.ReadKey();
     }
     
+    public ConsoleKey ReadPressKey(string message = "")
+    {
+        Write(message);
+        return Console.ReadKey().Key;
+    }
+    
     public T ReadEnumValue<T>(string message, bool retryOnInvalid = false, string retryMessage = "Invalid input. Please try again.") where T : struct
     {
         Write(message);

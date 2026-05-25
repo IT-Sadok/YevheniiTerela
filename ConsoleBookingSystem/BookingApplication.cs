@@ -11,6 +11,7 @@ public class BookingApplication
         { BookingApplicationActionType.AddNewHost, "Add new Host" },
         { BookingApplicationActionType.RemoveHost, "Remove Host by ID" },
         { BookingApplicationActionType.UpdateHost, "Update Host by ID" },
+        { BookingApplicationActionType.SaveChanges, "Save Changes" },
         { BookingApplicationActionType.ExitApplication, "Exit the application" },
     };
     
@@ -24,6 +25,23 @@ public class BookingApplication
     {
         _io.Write("\n============= Hello, this is Booking System app! =============\n");
         ShowActionsMenu();
+    }
+
+    private string FormatActionMenuItemName(KeyValuePair<BookingApplicationActionType, string> actionType, string appendString)
+    {
+        string actionMenuItemName = $"- press {(int)actionType.Key} to {actionType.Value}";
+        
+        switch (actionType.Key)
+        {
+            case BookingApplicationActionType.SaveChanges:
+            {
+                bool anyChanges = _hostsService.AnyUnsavedChanges();
+                actionMenuItemName += anyChanges ? " (there are unsaved changes)" : " (no unsaved changes)";
+                break;
+            }
+        }
+        
+        return actionMenuItemName + appendString;
     }
 
     private void ShowActionsMenu()
@@ -41,7 +59,7 @@ public class BookingApplication
             foreach (var actionType in _actions)
             {
                 isLastMenuItemsIteration = loopCounter++ == _actions.Count;
-                _io.Write($"- press {(int)actionType.Key} to {actionType.Value}{(isLastMenuItemsIteration ? "." : ";")}");
+                _io.Write(FormatActionMenuItemName(actionType, isLastMenuItemsIteration ? "." : ";"));
             }
             
             actionResult = ProcessAction();
@@ -50,8 +68,15 @@ public class BookingApplication
             // (like when user requested to exit app; or when invalid action received from user
             switch (actionResult)
             {
-                case ProcessedBookingApplicationActionResult.GotExitApplicationRequest: 
-                    return; // finishing the program
+                case ProcessedBookingApplicationActionResult.GotExitApplicationRequest:
+                {
+                    if (ConfirmExitApplication()) 
+                    {
+                        HandleExitAppAction();
+                        return; // finishing the program
+                    }
+                    continue; // otherwise - going back to the Menu
+                }
                 case ProcessedBookingApplicationActionResult.GotInvalidAction:
                     continue; // interrupting current iteration here and starting new iteration
             }
@@ -75,9 +100,9 @@ public class BookingApplication
             case BookingApplicationActionType.AddNewHost: HandleAddNewHostAction(); break;
             case BookingApplicationActionType.RemoveHost: HandleRemoveHostAction(); break;
             case BookingApplicationActionType.UpdateHost: HandleUpdateHostAction(); break;
+            case BookingApplicationActionType.SaveChanges: HandleSaveChangesAction(); break;
             case BookingApplicationActionType.ExitApplication:
             {
-                HandleExitAppAction();
                 return ProcessedBookingApplicationActionResult.GotExitApplicationRequest;
             }
             default:
@@ -107,6 +132,15 @@ public class BookingApplication
         }
 
         return hostIdToRetrieve;
+    }
+
+    private bool ConfirmExitApplication()
+    {
+        if (!_hostsService.AnyUnsavedChanges())
+            return true;
+        
+        var pressedKey = _io.ReadPressKey("\nThere are unsaved changes which will be lost after exit.\nPress Enter to confirm exit. Press any other key to go back to the Menu.");
+        return pressedKey == ConsoleKey.Enter;
     }
     
     private void HandleShowAllHostsAction()
@@ -169,11 +203,12 @@ public class BookingApplication
             // this line is expected to be shown when Host removed successfully
             _io.Write("\nHost added successfully!");
         }
-        catch (Exception exception)
+        catch (ArgumentException exception)
         {
             // this line is expected to be shown when there was an error during adding a Host
             // (Host with specified name and address already exists, etc)
-            _io.Write($"\n{exception.Message}");
+            _io.Write("\nInvalid arguments entered.");
+            _io.Write($"{exception.Message}");
         }
     }
 
@@ -185,44 +220,79 @@ public class BookingApplication
             "\nEnter ID of the Host that needs to be removed (confirm input by pressing Enter):",
             "\nInvalid host ID entered, please try again."
         );
+        
         try
         {
             _hostsService.RemoveHostById(hostIdToRemove);
             // this line is expected to be shown when Host removed successfully
             _io.Write("\nHost removed successfully!");
         }
-        catch (Exception exception)
+        catch (ArgumentOutOfRangeException exception)
         {
-            // this line is expected to be shown when there was an error during deleting a Host
-            // (Host with specified ID was not found, etc)
-            _io.Write($"\n{exception.Message}");
+            _io.Write("\nInvalid arguments entered.");
+            _io.Write($"{exception.Message}");
+        }
+        catch (HostNotFoundException exception)
+        {
+            if (exception.HostId != null)
+                _io.Write($"\nHost with with ID = {exception.HostId} not found!");
+            else 
+                _io.Write("\nNo data found.");
         }
     }
     
     private void HandleUpdateHostAction()
     {
         _io.Write("\n==== You are updating a particular Host's data ====");
-        
+
         try
         {
             int hostIdToUpdate = TryRetrieveHostId(
                 "\nEnter ID of the Host that needs to be updated (confirm input by pressing Enter):",
                 "\nInvalid host ID entered, please try again.");
-            
-            var newHostName = _io.ReadString("Enter updated Host name:", true, "Host name can not be empty, please try again.").Trim();
-            var newHostAddress = _io.ReadString("Enter updated Host address:", true, "Host address can not be empty, please try again.").Trim();
-            
+
+            var newHostName = _io.ReadString("Enter updated Host name:", true,
+                "Host name can not be empty, please try again.").Trim();
+            var newHostAddress = _io.ReadString("Enter updated Host address:", true,
+                "Host address can not be empty, please try again.").Trim();
+
             _hostsService.EditHostById(hostIdToUpdate, newHostName, newHostAddress);
-            
+
             // this line is expected to be shown when Host removed successfully
             _io.Write("\nHost is updated successfully!");
         }
-        catch (Exception exception)
+        catch (ArgumentException exception)
         {
-            // this line is expected to be shown when there was an error during deleting a Host
-            // (Host with specified ID was not found, etc)
-            _io.Write($"\n{exception.Message}");
+            _io.Write("\nInvalid argument entered.");
+            _io.Write($"{exception.Message}");
         }
+        catch (HostNotFoundException exception)
+        {
+            if (exception.HostId != null)
+                _io.Write($"\nHost with with ID = {exception.HostId} not found!");
+            else 
+                _io.Write("\nNo data found.");
+        }
+    }
+
+    private void HandleSaveChangesAction()
+    {
+        if (_hostsService.AnyUnsavedChanges())
+        {
+            try
+            {
+                _hostsService.SaveChanges();
+                _io.Write("\nChanges were saved successfully!");
+            }
+            catch (Exception exception)
+            {
+                _io.Write("Something went wrong during saving changes: " + exception.Message);
+            }
+            
+            return;
+        }
+        
+        _io.Write("\nNo changes to save yet.");
     }
     
     private void HandleExitAppAction()
