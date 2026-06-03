@@ -12,5 +12,7 @@ public interface IHostRepository
     public Apartment? FindApartmentById(int hostId, int apartmentId);
     public void CreateApartment(int hostId, CreateApartmentData createApartmentData);
     public void UpdateApartment(int hostId, int apartmentId, UpdateApartmentData updateApartmentData);
+    public void RemoveApartment(int hostId, int apartmentId);
+    public int FindHostApartmentsCount(int hostId);
     public void SaveChanges();
 }

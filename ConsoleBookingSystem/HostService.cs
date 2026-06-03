@@ -103,6 +103,25 @@ public class HostService : IHostService
         
         SetAnyUnsavedChanges(true);
     }
+    
+    public void RemoveApartmentById(int hostId, int apartmentId)
+    {
+        if (hostId <= 0)
+            throw new ArgumentOutOfRangeException(nameof(hostId), "Host ID cannot be zero or negative.");
+        
+        if (apartmentId <= 0)
+            throw new ArgumentOutOfRangeException(nameof(apartmentId), "Apartment ID cannot be zero or negative.");
+        
+        if (_hostRepository.FindHostsCount() == 0)
+            throw new HostNotFoundException("No Hosts found.");
+        
+        if (_hostRepository.FindHostApartmentsCount(hostId) == 0)
+            throw new ApartmentNotFoundException("No Apartments found in the Host with specified ID.", apartmentId);
+        
+        _hostRepository.RemoveApartment(hostId, apartmentId);
+        
+        SetAnyUnsavedChanges(true);
+    }
 
     public void SaveChanges()
     {

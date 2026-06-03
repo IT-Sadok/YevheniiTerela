@@ -75,6 +75,11 @@ public class JsonFileHostRepository : IHostRepository
         hostToUpdate.Address = updateHostData.Address;
     }
     
+    public int FindHostApartmentsCount(int hostId)
+    {
+        return FindHostById(hostId)?.Apartments.Count ?? 0;
+    }
+    
     public Apartment? FindApartmentById(int hostId, int apartmentId)
     {
         return FindHostById(hostId)?.Apartments.FirstOrDefault(apartment => apartment.Id == apartmentId);
@@ -107,6 +112,19 @@ public class JsonFileHostRepository : IHostRepository
         apartmentToUpdate.Number = updateApartmentData.Number;
         apartmentToUpdate.Price = updateApartmentData.Price;
         apartmentToUpdate.IsBooked = updateApartmentData.IsBooked;
+    }
+    
+    public void RemoveApartment(int hostId, int apartmentId)
+    {
+        var apartmentHost = FindHostById(hostId);
+        if (apartmentHost == null)
+            throw new HostNotFoundException($"Host with ID = {hostId} not found.", hostId);
+        
+        var apartmentToRemove = FindApartmentById(hostId, apartmentId);
+        if (apartmentToRemove == null)
+            throw new ApartmentNotFoundException("Apartment with specified ID not found.", apartmentId);
+        
+        apartmentHost.Apartments.Remove(apartmentToRemove);
     }
 
     public void SaveChanges()
