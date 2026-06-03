@@ -4,6 +4,7 @@ public class JsonFileHostRepository : IHostRepository
 {
     private List<Host> _hosts;
     private int _currentLargestHostId; // is used internally to generate id for newly-added Hosts
+    private int _currentLargestApartmentId;
     private readonly IPersistence<List<Host>> _hostsPersistenceStorage;
 
     public JsonFileHostRepository(IPersistence<List<Host>> hostsPersistenceStorage)
@@ -19,6 +20,11 @@ public class JsonFileHostRepository : IHostRepository
         foreach (var host in _hosts)
         {
             if (_currentLargestHostId < host.Id) _currentLargestHostId = host.Id;
+            
+            foreach (var apartment in host.Apartments)
+            {
+                if (_currentLargestApartmentId < apartment.Id) _currentLargestApartmentId = apartment.Id;
+            }
         }
     }
     
@@ -67,6 +73,25 @@ public class JsonFileHostRepository : IHostRepository
         
         hostToUpdate.Name = updateHostData.Name;
         hostToUpdate.Address = updateHostData.Address;
+    }
+    
+    public void CreateApartment(int hostId, CreateApartmentData createApartmentData)
+    {
+        var hostForApartment = _hosts.FirstOrDefault(h => h.Id == hostId);
+        if (hostForApartment == null)
+            throw new HostNotFoundException($"Can not create Apartment for Host with ID = {hostId}, specified Host not found.");
+
+        Console.WriteLine($"_currentLargestApartmentId = {_currentLargestApartmentId}");
+        
+        hostForApartment.Apartments.Add(
+            new Apartment
+            {
+                Id = ++_currentLargestApartmentId, 
+                Number = createApartmentData.Number,
+                Price = createApartmentData.Price,
+                IsBooked = createApartmentData.IsBooked
+            }
+        );
     }
 
     public void SaveChanges()

@@ -4,6 +4,7 @@ public class InMemoryHostRepository : IHostRepository
 {
     private List<Host> _hosts;
     private int _currentLargestHostId; // is used internally to generate id for newly-added Hosts
+    private int _currentLargestApartmentId;
 
     public InMemoryHostRepository(List<Host> hosts)
     {
@@ -13,6 +14,11 @@ public class InMemoryHostRepository : IHostRepository
         foreach (var host in _hosts)
         {
             if (_currentLargestHostId < host.Id) _currentLargestHostId = host.Id;
+            
+            foreach (var apartment in host.Apartments)
+            {
+                if (_currentLargestApartmentId < apartment.Id) _currentLargestApartmentId = apartment.Id;
+            }
         }
     }
     
@@ -57,10 +63,27 @@ public class InMemoryHostRepository : IHostRepository
         var hostToUpdate = _hosts.FirstOrDefault(h => h.Id == hostId);
         
         if (hostToUpdate == null) 
-            throw new Exception($"Update failed. Host with ID = {hostId} not found.");
+            throw new HostNotFoundException($"Update failed. Host with ID = {hostId} not found.");
         
         hostToUpdate.Name = updateHostData.Name;
         hostToUpdate.Address = updateHostData.Address;
+    }
+
+    public void CreateApartment(int hostId, CreateApartmentData createApartmentData)
+    {
+        var hostForApartment = _hosts.FirstOrDefault(h => h.Id == hostId);
+        if (hostForApartment == null)
+            throw new HostNotFoundException($"Can not create Apartment for Host with ID = {hostId}, specified Host not found.");
+        
+        hostForApartment.Apartments.Add(
+            new Apartment
+            {
+                Id = ++_currentLargestApartmentId,
+                Number = createApartmentData.Number,
+                Price = createApartmentData.Price,
+                IsBooked = createApartmentData.IsBooked
+            }
+        );
     }
 
     public void SaveChanges()

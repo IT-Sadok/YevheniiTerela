@@ -4,13 +4,14 @@ public class BookingApplication
 {
     private IHostService _hostsService;
     private IConsoleInputOutput _io;
-    private Dictionary<BookingApplicationActionType, string> _actions =  new Dictionary<BookingApplicationActionType, string>
+    private Dictionary<BookingApplicationActionType, string> _actions = new Dictionary<BookingApplicationActionType, string>
     {
         { BookingApplicationActionType.ShowAllHosts, "Show all Hosts" },
         { BookingApplicationActionType.ShowHostDetails, "Show all available Apartments for a Host (by Host's ID)" },
         { BookingApplicationActionType.AddNewHost, "Add new Host" },
         { BookingApplicationActionType.RemoveHost, "Remove Host by ID" },
         { BookingApplicationActionType.UpdateHost, "Update Host by ID" },
+        { BookingApplicationActionType.AddNewApartment, "Add new Apartment" },
         { BookingApplicationActionType.SaveChanges, "Save Changes" },
         { BookingApplicationActionType.ExitApplication, "Exit the application" },
     };
@@ -100,6 +101,7 @@ public class BookingApplication
             case BookingApplicationActionType.AddNewHost: HandleAddNewHostAction(); break;
             case BookingApplicationActionType.RemoveHost: HandleRemoveHostAction(); break;
             case BookingApplicationActionType.UpdateHost: HandleUpdateHostAction(); break;
+            case BookingApplicationActionType.AddNewApartment: HandleAddNewApartmentAction(); break;
             case BookingApplicationActionType.SaveChanges: HandleSaveChangesAction(); break;
             case BookingApplicationActionType.ExitApplication:
             {
@@ -272,6 +274,29 @@ public class BookingApplication
                 _io.Write($"\nHost with with ID = {exception.HostId} not found!");
             else 
                 _io.Write("\nNo data found.");
+        }
+    }
+
+    private void HandleAddNewApartmentAction()
+    {
+        _io.Write("\n==== You are adding new Apartment ====");
+        
+        var targetHostId = TryRetrieveHostId("\nEnter ID of the Host you want to add new Apartment to:", "Please enter valid Host ID again.");
+        
+        var newApartmentNumber = _io.ReadInt("\nEnter new Apartment number:", true);
+        var newApartmentPrice = _io.ReadDouble("\nEnter new Apartment price (decimal point delimiter is a dot (e.g., \"120.20\"):", true);
+
+        try
+        {
+            _hostsService.AddApartment(targetHostId, new CreateApartmentData { Number = newApartmentNumber, Price = newApartmentPrice });
+            _io.Write($"New Apartment added successfully to Host with ID = {targetHostId}!");
+        }
+        catch (HostNotFoundException exception)
+        {
+            if (exception.HostId != null)
+                _io.Write($"\nHost with with ID = {exception.HostId} not found!");
+            else 
+                _io.Write("\nSomething went wrong during adding new Apartment.");
         }
     }
 

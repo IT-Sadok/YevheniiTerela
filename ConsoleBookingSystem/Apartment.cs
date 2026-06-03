@@ -11,6 +11,6 @@ public class Apartment
 
     public override string ToString()
     {
-        return $"Apartment #{Number}, ${Price.ToString("F2", CultureInfo.InvariantCulture)} {(IsBooked ? "" : "(available for reservation)")}";
+        return $"ID={Id} --> Apartment #{Number}, ${Price.ToString("F2", CultureInfo.InvariantCulture)} {(IsBooked ? "" : "(available for reservation)")}";
     }
 }

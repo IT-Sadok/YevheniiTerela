@@ -76,6 +76,15 @@ public class HostService : IHostService
         SetAnyUnsavedChanges(true);
     }
 
+    public void AddApartment(int hostId, CreateApartmentData createApartmentData)
+    {
+        if (!HostExistsById(hostId))
+            throw new HostNotFoundException("Host with specified ID not found.", hostId);
+        
+        _hostRepository.CreateApartment(hostId, new CreateApartmentData { Number = createApartmentData.Number, Price = createApartmentData.Price });
+        SetAnyUnsavedChanges(true);
+    }
+
     public void SaveChanges()
     {
         _hostRepository.SaveChanges();
