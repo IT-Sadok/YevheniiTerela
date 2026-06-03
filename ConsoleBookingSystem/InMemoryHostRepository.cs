@@ -68,12 +68,17 @@ public class InMemoryHostRepository : IHostRepository
         hostToUpdate.Name = updateHostData.Name;
         hostToUpdate.Address = updateHostData.Address;
     }
+    
+    public Apartment? FindApartmentById(int hostId, int apartmentId)
+    {
+        return FindHostById(hostId)?.Apartments.FirstOrDefault(apartment => apartment.Id == apartmentId);
+    }
 
     public void CreateApartment(int hostId, CreateApartmentData createApartmentData)
     {
-        var hostForApartment = _hosts.FirstOrDefault(h => h.Id == hostId);
+        var hostForApartment = FindHostById(hostId);
         if (hostForApartment == null)
-            throw new HostNotFoundException($"Can not create Apartment for Host with ID = {hostId}, specified Host not found.");
+            throw new HostNotFoundException($"Can not create Apartment for Host with ID = {hostId}: specified Host not found.");
         
         hostForApartment.Apartments.Add(
             new Apartment
@@ -85,7 +90,19 @@ public class InMemoryHostRepository : IHostRepository
             }
         );
     }
-
+    
+    public void UpdateApartment(int hostId, int apartmentId, UpdateApartmentData updateApartmentData)
+    {
+        var apartmentToUpdate = FindApartmentById(hostId, apartmentId);
+        
+        if (apartmentToUpdate == null)
+            throw new ApartmentNotFoundException("Apartment with specified ID not found.", apartmentId);
+        
+        apartmentToUpdate.Number = updateApartmentData.Number;
+        apartmentToUpdate.Price = updateApartmentData.Price;
+        apartmentToUpdate.IsBooked = updateApartmentData.IsBooked;
+    }
+    
     public void SaveChanges()
     {
         // this method is not expected to do anything for current implementation of IHostRepository

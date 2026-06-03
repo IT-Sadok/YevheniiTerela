@@ -66,7 +66,7 @@ public class JsonFileHostRepository : IHostRepository
     
     public void UpdateHost(int hostId, UpdateHostData updateHostData)
     {
-        var hostToUpdate = _hosts.FirstOrDefault(h => h.Id == hostId);
+        var hostToUpdate = FindHostById(hostId);
         
         if (hostToUpdate == null) 
             return;
@@ -75,13 +75,16 @@ public class JsonFileHostRepository : IHostRepository
         hostToUpdate.Address = updateHostData.Address;
     }
     
+    public Apartment? FindApartmentById(int hostId, int apartmentId)
+    {
+        return FindHostById(hostId)?.Apartments.FirstOrDefault(apartment => apartment.Id == apartmentId);
+    }
+    
     public void CreateApartment(int hostId, CreateApartmentData createApartmentData)
     {
         var hostForApartment = _hosts.FirstOrDefault(h => h.Id == hostId);
         if (hostForApartment == null)
             throw new HostNotFoundException($"Can not create Apartment for Host with ID = {hostId}, specified Host not found.");
-
-        Console.WriteLine($"_currentLargestApartmentId = {_currentLargestApartmentId}");
         
         hostForApartment.Apartments.Add(
             new Apartment
@@ -92,6 +95,18 @@ public class JsonFileHostRepository : IHostRepository
                 IsBooked = createApartmentData.IsBooked
             }
         );
+    }
+    
+    public void UpdateApartment(int hostId, int apartmentId, UpdateApartmentData updateApartmentData)
+    {
+        var apartmentToUpdate = FindApartmentById(hostId, apartmentId);
+        
+        if (apartmentToUpdate == null)
+            throw new ApartmentNotFoundException("Apartment with specified ID not found.", apartmentId);
+        
+        apartmentToUpdate.Number = updateApartmentData.Number;
+        apartmentToUpdate.Price = updateApartmentData.Price;
+        apartmentToUpdate.IsBooked = updateApartmentData.IsBooked;
     }
 
     public void SaveChanges()

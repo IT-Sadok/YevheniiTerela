@@ -12,6 +12,7 @@ public class BookingApplication
         { BookingApplicationActionType.RemoveHost, "Remove Host by ID" },
         { BookingApplicationActionType.UpdateHost, "Update Host by ID" },
         { BookingApplicationActionType.AddNewApartment, "Add new Apartment" },
+        { BookingApplicationActionType.UpdateApartment, "Update Apartment by ID" },
         { BookingApplicationActionType.SaveChanges, "Save Changes" },
         { BookingApplicationActionType.ExitApplication, "Exit the application" },
     };
@@ -102,6 +103,7 @@ public class BookingApplication
             case BookingApplicationActionType.RemoveHost: HandleRemoveHostAction(); break;
             case BookingApplicationActionType.UpdateHost: HandleUpdateHostAction(); break;
             case BookingApplicationActionType.AddNewApartment: HandleAddNewApartmentAction(); break;
+            case BookingApplicationActionType.UpdateApartment: HandleUpdateApartmentAction(); break;
             case BookingApplicationActionType.SaveChanges: HandleSaveChangesAction(); break;
             case BookingApplicationActionType.ExitApplication:
             {
@@ -140,6 +142,8 @@ public class BookingApplication
     {
         if (!_hostsService.AnyUnsavedChanges())
             return true;
+        
+        _io.Write("\n===== Important message =====");
         
         var pressedKey = _io.ReadPressKey("\nThere are unsaved changes which will be lost after exit.\nPress Enter to confirm exit. Press any other key to go back to the Menu.");
         return pressedKey == ConsoleKey.Enter;
@@ -297,6 +301,62 @@ public class BookingApplication
                 _io.Write($"\nHost with with ID = {exception.HostId} not found!");
             else 
                 _io.Write("\nSomething went wrong during adding new Apartment.");
+        }
+    }
+    
+    private void HandleUpdateApartmentAction()
+    {
+        _io.Write("\n==== You are updating a particular Apartment's data ====");
+
+        try
+        {
+            var hostIdToUpdate = TryRetrieveHostId(
+                "\nEnter ID of the Apartment's Host (confirm input by pressing Enter):",
+                "\nInvalid host ID entered, please try again.");
+            
+            var hostApartments = _hostsService.GetHostById(hostIdToUpdate)?.Apartments;
+            if (hostApartments != null && hostApartments.Count > 0)
+            {
+                _io.Write("List of selected Host's Apartments:");
+                foreach (var apartment in hostApartments)
+                {
+                    _io.Write(" - " + apartment);
+                }
+            }
+            else
+            {
+                _io.Write("Selected Host does not Apartments added yet.");
+                return;
+            }
+            
+            var apartmentIdToUpdate = _io.ReadInt("\nEnter ID of the Apartment to update:", true);
+
+            var updatedApartmentNumber = _io.ReadInt("\nEnter new Apartment number:", true);
+            var updatedfApartmentPrice = _io.ReadDouble("\nEnter new Apartment price (decimal point delimiter is a dot (e.g., \"120.20\"):", true);
+
+            _hostsService.EditApartmentById(hostIdToUpdate, apartmentIdToUpdate, new UpdateApartmentData { Number = updatedApartmentNumber, Price = updatedfApartmentPrice });
+
+            // this line is expected to be shown when Host removed successfully
+            _io.Write("\nHost is updated successfully!");
+        }
+        catch (ArgumentException exception)
+        {
+            _io.Write("\nInvalid argument entered.");
+            _io.Write($"{exception.Message}");
+        }
+        catch (HostNotFoundException exception)
+        {
+            if (exception.HostId != null)
+                _io.Write($"\nHost with with ID = {exception.HostId} not found!");
+            else 
+                _io.Write("\nNo data found.");
+        }
+        catch (ApartmentNotFoundException exception)
+        {
+            if (exception.ApartmentId != null)
+                _io.Write($"\nApartment with with ID = {exception.ApartmentId} not found!");
+            else 
+                _io.Write("\nNo data found.");
         }
     }
 

@@ -75,6 +75,11 @@ public class HostService : IHostService
         
         SetAnyUnsavedChanges(true);
     }
+    
+    public bool ApartmentExistsById(int hostId, int apartmentId)
+    {
+        return _hostRepository.FindApartmentById(hostId, apartmentId) != null;
+    }
 
     public void AddApartment(int hostId, CreateApartmentData createApartmentData)
     {
@@ -82,6 +87,20 @@ public class HostService : IHostService
             throw new HostNotFoundException("Host with specified ID not found.", hostId);
         
         _hostRepository.CreateApartment(hostId, new CreateApartmentData { Number = createApartmentData.Number, Price = createApartmentData.Price });
+        
+        SetAnyUnsavedChanges(true);
+    }
+    
+    public void EditApartmentById(int hostId, int apartmentId, UpdateApartmentData updateApartmentData)
+    {
+        if (!HostExistsById(hostId))
+            throw new HostNotFoundException("Host with specified ID not found.", hostId);
+        
+        if (!ApartmentExistsById(hostId, apartmentId))
+            throw new ApartmentNotFoundException("Apartment with specified ID not found.", apartmentId);
+        
+        _hostRepository.UpdateApartment(hostId, apartmentId, updateApartmentData);
+        
         SetAnyUnsavedChanges(true);
     }
 

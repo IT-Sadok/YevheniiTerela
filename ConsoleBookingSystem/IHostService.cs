@@ -10,6 +10,8 @@ public interface IHostService
     public void RemoveHostById(int hostId);
     public void EditHostById(int hostId, string updatedHostName, string updatedAddress);
     public void AddApartment(int hostId, CreateApartmentData createApartmentData);
+    public bool ApartmentExistsById(int hostId, int apartmentId);
+    public void EditApartmentById(int hostId, int apartmentId, UpdateApartmentData updateApartmentData);
     public void SaveChanges();
     public bool AnyUnsavedChanges();
 }
