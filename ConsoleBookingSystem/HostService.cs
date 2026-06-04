@@ -75,6 +75,17 @@ public class HostService : IHostService
         
         SetAnyUnsavedChanges(true);
     }
+
+    public List<Apartment> GetHostApartments(int hostId)
+    {
+        if (hostId <= 0)
+            throw new ArgumentOutOfRangeException(nameof(hostId), "Host ID cannot be zero or negative.");
+        
+        if (!HostExistsById(hostId))
+            throw new HostNotFoundException("Host with specified ID not found.", hostId);
+        
+        return _hostRepository.FindAllHostApartments(hostId);
+    }
     
     public bool ApartmentExistsById(int hostId, int apartmentId)
     {

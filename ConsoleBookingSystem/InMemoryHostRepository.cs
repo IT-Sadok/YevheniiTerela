@@ -69,6 +69,11 @@ public class InMemoryHostRepository : IHostRepository
         hostToUpdate.Address = updateHostData.Address;
     }
 
+    public List<Apartment> FindAllHostApartments(int hostId)
+    {
+        return _hosts.FirstOrDefault(host => host.Id == hostId)?.Apartments.ToList() ?? [];
+    }
+
     public int FindHostApartmentsCount(int hostId)
     {
         return FindHostById(hostId)?.Apartments.Count ?? 0;

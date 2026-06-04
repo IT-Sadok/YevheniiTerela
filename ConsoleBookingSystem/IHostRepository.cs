@@ -9,6 +9,7 @@ public interface IHostRepository
     public int FindHostsCount();
     public void RemoveHost(Host host);
     public void UpdateHost(int hostId, UpdateHostData updateHostData);
+    public List<Apartment> FindAllHostApartments(int hostId);
     public Apartment? FindApartmentById(int hostId, int apartmentId);
     public void CreateApartment(int hostId, CreateApartmentData createApartmentData);
     public void UpdateApartment(int hostId, int apartmentId, UpdateApartmentData updateApartmentData);

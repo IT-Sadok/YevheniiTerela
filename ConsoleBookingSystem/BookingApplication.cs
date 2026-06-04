@@ -140,6 +140,31 @@ public class BookingApplication
         return hostIdToRetrieve;
     }
 
+    private (int HostId, int? ApartmentId) TryRetrieveApartmentId(string getHostIdMessage, string getHostIdMessageInvalidInputMessage, string getApartmentIdMessage, string getApartmentIdMessageInvalidInputMessage)
+    {
+        // fixed array of 2 elements - result[0] represents retrieved hostId, result[1] - represents retrieved apartmentId 
+        var hostId = TryRetrieveHostId(getHostIdMessage, getHostIdMessageInvalidInputMessage);
+        int? apartmentId = null;
+            
+        var hostApartments = _hostsService.GetHostApartments(hostId);
+        if (hostApartments.Count == 0)
+        {
+            _io.Write("Selected Host does not Apartments added yet.");
+        }
+        else
+        {
+            _io.Write("List of selected Host's Apartments:");
+            foreach (var apartment in hostApartments)
+            {
+                _io.Write(" - " + apartment);
+            }
+        
+            apartmentId = _io.ReadInt(getApartmentIdMessage, true, getApartmentIdMessageInvalidInputMessage);
+        }
+        
+        return (hostId, apartmentId);
+    }
+
     private bool ConfirmExitApplication()
     {
         if (!_hostsService.AnyUnsavedChanges())
@@ -312,34 +337,26 @@ public class BookingApplication
 
         try
         {
-            var hostIdToUpdate = TryRetrieveHostId(
+            var (hostIdToUpdate, apartmentIdToUpdate) = TryRetrieveApartmentId(
                 "\nEnter ID of the Apartment's Host (confirm input by pressing Enter):",
-                "\nInvalid host ID entered, please try again.");
-            
-            var hostApartments = _hostsService.GetHostById(hostIdToUpdate)?.Apartments;
-            if (hostApartments != null && hostApartments.Count > 0)
+                "\nInvalid host ID entered, please try again.",
+                "\nEnter ID of the Apartment to update:",
+                "Invalid Apartment ID entered, please try again."
+            );
+
+            if (apartmentIdToUpdate == null)
             {
-                _io.Write("List of selected Host's Apartments:");
-                foreach (var apartment in hostApartments)
-                {
-                    _io.Write(" - " + apartment);
-                }
-            }
-            else
-            {
-                _io.Write("Selected Host does not Apartments added yet.");
+                _io.Write("Selected Host does not have Apartments added yet.");
                 return;
             }
-            
-            var apartmentIdToUpdate = _io.ReadInt("\nEnter ID of the Apartment to update:", true);
 
             var updatedApartmentNumber = _io.ReadInt("\nEnter updated Apartment number:", true);
             var updatedfApartmentPrice = _io.ReadDouble("\nEnter updated Apartment price (decimal point delimiter is a dot (e.g., \"120.20\"):", true);
 
-            _hostsService.EditApartmentById(hostIdToUpdate, apartmentIdToUpdate, new UpdateApartmentData { Number = updatedApartmentNumber, Price = updatedfApartmentPrice });
+            _hostsService.EditApartmentById(hostIdToUpdate, (int)apartmentIdToUpdate, new UpdateApartmentData { Number = updatedApartmentNumber, Price = updatedfApartmentPrice });
 
             // this line is expected to be shown when Host removed successfully
-            _io.Write("\nHost is updated successfully!");
+            _io.Write("\nApartment is updated successfully!");
         }
         catch (ArgumentException exception)
         {
@@ -368,28 +385,20 @@ public class BookingApplication
         
         try
         {
-            var hostIdToUpdate = TryRetrieveHostId(
+            var (hostIdToUpdate, apartmentIdToDelete) = TryRetrieveApartmentId(
                 "\nEnter ID of the Apartment's Host (confirm input by pressing Enter):",
-                "\nInvalid host ID entered, please try again.");
+                "\nInvalid host ID entered, please try again.",
+            "\nEnter ID of the Apartment to delete:",
+                "Invalid Apartment ID entered, please try again."
+            );
             
-            var hostApartments = _hostsService.GetHostById(hostIdToUpdate)?.Apartments;
-            if (hostApartments != null && hostApartments.Count > 0)
-            {
-                _io.Write("List of selected Host's Apartments:");
-                foreach (var apartment in hostApartments)
-                {
-                    _io.Write(" - " + apartment);
-                }
-            }
-            else
+            if (apartmentIdToDelete == null)
             {
                 _io.Write("Selected Host does not Apartments added yet.");
                 return;
             }
-            
-            var apartmentIdToDelete = _io.ReadInt("\nEnter ID of the Apartment to delete:", true);
 
-            _hostsService.RemoveApartmentById(hostIdToUpdate, apartmentIdToDelete);
+            _hostsService.RemoveApartmentById(hostIdToUpdate, (int)apartmentIdToDelete);
 
             // this line is expected to be shown when Host removed successfully
             _io.Write("\nHost is deleted successfully!");
