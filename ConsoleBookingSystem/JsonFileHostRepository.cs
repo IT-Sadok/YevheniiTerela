@@ -119,7 +119,7 @@ public class JsonFileHostRepository : IHostRepository
             apartmentToUpdate.Number = (int)updateApartmentData.Number;    
         }
         
-        if (updateApartmentData.Price != null && Math.Abs((double)updateApartmentData.Price - apartmentToUpdate.Price) < 0.00001)
+        if (updateApartmentData.Price != null && Math.Abs((double)updateApartmentData.Price - apartmentToUpdate.Price) > 0.00001)
         {
             apartmentToUpdate.Price = (double)updateApartmentData.Price;    
         }
