@@ -107,10 +107,21 @@ public class InMemoryHostRepository : IHostRepository
         
         if (apartmentToUpdate == null)
             throw new ApartmentNotFoundException("Apartment with specified ID not found.", apartmentId);
+
+        if (updateApartmentData.Number != null && updateApartmentData.Number != apartmentToUpdate.Number)
+        {
+            apartmentToUpdate.Number = (int)updateApartmentData.Number;    
+        }
         
-        apartmentToUpdate.Number = updateApartmentData.Number;
-        apartmentToUpdate.Price = updateApartmentData.Price;
-        apartmentToUpdate.IsBooked = updateApartmentData.IsBooked;
+        if (updateApartmentData.Price != null && Math.Abs((double)updateApartmentData.Price - apartmentToUpdate.Price) < 0.00001)
+        {
+            apartmentToUpdate.Price = (double)updateApartmentData.Price;    
+        }
+        
+        if (updateApartmentData.IsBooked != null)
+        {
+            apartmentToUpdate.IsBooked = (bool)updateApartmentData.IsBooked;
+        }
     }
 
     public void RemoveApartment(int hostId, int apartmentId)
