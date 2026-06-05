@@ -55,7 +55,7 @@ public class BookingApplication
         
         while (true)
         {
-            loopCounter = 1; // resetting counter at the beginning of every iteration
+            loopCounter = 1;
             
             _io.Write("\nSelect action:");
             
@@ -126,7 +126,6 @@ public class BookingApplication
     {
         int hostIdToRetrieve;
         
-        // iterating until user inputs valid and existing host-id
         while (true)
         {
             hostIdToRetrieve = _io.ReadInt(message, true, invalidInputMessage);
@@ -142,7 +141,6 @@ public class BookingApplication
 
     private (int HostId, int? ApartmentId) TryRetrieveApartmentId(string getHostIdMessage, string getHostIdMessageInvalidInputMessage, string getApartmentIdMessage, string getApartmentIdMessageInvalidInputMessage)
     {
-        // fixed array of 2 elements - result[0] represents retrieved hostId, result[1] - represents retrieved apartmentId 
         var hostId = TryRetrieveHostId(getHostIdMessage, getHostIdMessageInvalidInputMessage);
         int? apartmentId = null;
             
@@ -233,13 +231,10 @@ public class BookingApplication
         try
         {
             _hostsService.AddHost(newHostName, newHostAddress);
-            // this line is expected to be shown when Host removed successfully
             _io.Write("\nHost added successfully!");
         }
         catch (ArgumentException exception)
         {
-            // this line is expected to be shown when there was an error during adding a Host
-            // (Host with specified name and address already exists, etc)
             _io.Write("\nInvalid arguments entered.");
             _io.Write($"{exception.Message}");
         }
@@ -257,7 +252,6 @@ public class BookingApplication
         try
         {
             _hostsService.RemoveHostById(hostIdToRemove);
-            // this line is expected to be shown when Host removed successfully
             _io.Write("\nHost removed successfully!");
         }
         catch (ArgumentOutOfRangeException exception)
@@ -290,8 +284,7 @@ public class BookingApplication
                 "Host address can not be empty, please try again.").Trim();
 
             _hostsService.EditHostById(hostIdToUpdate, newHostName, newHostAddress);
-
-            // this line is expected to be shown when Host removed successfully
+            
             _io.Write("\nHost is updated successfully!");
         }
         catch (ArgumentException exception)
@@ -351,11 +344,10 @@ public class BookingApplication
             }
 
             var updatedApartmentNumber = _io.ReadInt("\nEnter updated Apartment number:", true);
-            var updatedfApartmentPrice = _io.ReadDouble("\nEnter updated Apartment price (decimal point delimiter is a dot (e.g., \"120.20\"):", true);
+            var updatedApartmentPrice = _io.ReadDouble("\nEnter updated Apartment price (decimal point delimiter is a dot (e.g., \"120.20\"):", true);
 
-            _hostsService.EditApartmentById(hostIdToUpdate, (int)apartmentIdToUpdate, new UpdateApartmentData { Number = updatedApartmentNumber, Price = updatedfApartmentPrice });
-
-            // this line is expected to be shown when Host removed successfully
+            _hostsService.EditApartmentById(hostIdToUpdate, (int)apartmentIdToUpdate, new UpdateApartmentData { Number = updatedApartmentNumber, Price = updatedApartmentPrice });
+            
             _io.Write("\nApartment is updated successfully!");
         }
         catch (ArgumentException exception)
@@ -399,8 +391,7 @@ public class BookingApplication
             }
 
             _hostsService.RemoveApartmentById(hostIdToUpdate, (int)apartmentIdToDelete);
-
-            // this line is expected to be shown when Host removed successfully
+            
             _io.Write("\nHost is deleted successfully!");
         }
         catch (ArgumentException exception)

@@ -4,13 +4,14 @@ public class InMemoryHostRepository : IHostRepository
 {
     private List<Host> _hosts;
     private int _currentLargestHostId; // is used internally to generate id for newly-added Hosts
-    private int _currentLargestApartmentId;
+    private int _currentLargestApartmentId; // is used internally to generate id for newly-added Apartments
 
     public InMemoryHostRepository(List<Host> hosts)
     {
         _hosts = hosts;
 
-        //storing largest host-ID to _currentLargestHostId
+        // putting largest host-ID to _currentLargestHostId to use as primary auto-increment key
+        // putting largest apartment-ID to _currentLargestApartmentId to use as primary auto-increment key
         foreach (var host in _hosts)
         {
             if (_currentLargestHostId < host.Id) _currentLargestHostId = host.Id;

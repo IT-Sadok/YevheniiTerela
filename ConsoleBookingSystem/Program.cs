@@ -25,6 +25,7 @@ bookingApplication.LaunchApplication();
 
 
 // // ======= Race condition simulation for Hosts & Apartments (confirmed at June 4, 2026, 13:00 UTC and fixed in 71dceaf2f6fcc250abec3eb3158430880cfae957 commit)
+//
 // var raceConditionRepository = new InMemoryHostRepository((new RaceConditionSimulatorHostSeeder()).GetHosts());
 // var raceConditionSimulator = new HostRaceConditionSimulator(raceConditionRepository);
 //

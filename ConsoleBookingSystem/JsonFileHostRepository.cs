@@ -4,19 +4,19 @@ public class JsonFileHostRepository : IHostRepository
 {
     private List<Host> _hosts;
     private int _currentLargestHostId; // is used internally to generate id for newly-added Hosts
-    private int _currentLargestApartmentId;
+    private int _currentLargestApartmentId; // is used internally to generate id for newly-added Apartments
     private readonly IPersistence<List<Host>> _hostsPersistenceStorage;
 
     public JsonFileHostRepository(IPersistence<List<Host>> hostsPersistenceStorage)
     {
-        // initializing  dependencies
         _hostsPersistenceStorage = hostsPersistenceStorage;
         
         // ReadData() throws a PersistenceException
         // so initializing of JsonFileHostRepository should be wrapped with try-catch
         _hosts = _hostsPersistenceStorage.ReadData() ?? [];
         
-        //storing largest host-ID to _currentLargestHostId
+        // putting largest host-ID to _currentLargestHostId to use as primary auto-increment key
+        // putting largest apartment-ID to _currentLargestApartmentId to use as primary auto-increment key
         foreach (var host in _hosts)
         {
             if (_currentLargestHostId < host.Id) _currentLargestHostId = host.Id;

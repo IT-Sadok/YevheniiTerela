@@ -34,7 +34,7 @@ public class HostRaceConditionSimulator
             throw new HostNotFoundException("Test Hosts with specified IDs are not found.");
         }
         
-        // resetting apartment price to initial (once - cause apartment if a reference type variable here)
+        // resetting shared Apartment's price to initial (once - cause apartment if a reference type variable here)
         await UpdateApartmentPrice(initialSharedApartmentPrice, hostOneWithSharedApartment.Id, sharedApartmentId);
         
         var hostOneTask = Task.Run(async () =>
