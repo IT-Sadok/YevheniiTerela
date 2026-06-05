@@ -3,10 +3,12 @@ namespace ConsoleBookingSystem;
 public class HostRaceConditionSimulator
 {
     private IHostRepository _hostRepository;
+    private static SemaphoreSlim _semaphore;
 
     public HostRaceConditionSimulator(IHostRepository hostRepository)
     {
         _hostRepository = hostRepository;
+        _semaphore = new SemaphoreSlim(1, 1);
     }
 
     public async Task<bool> IncreasePriceForSharedApartment(int deltaPrice)
@@ -33,13 +35,38 @@ public class HostRaceConditionSimulator
         }
         
         // resetting apartment price to initial (once - cause apartment if a reference type variable here)
-        UpdateApartmentPrice(initialSharedApartmentPrice, hostOneWithSharedApartment.Id, sharedApartmentId);
+        await UpdateApartmentPrice(initialSharedApartmentPrice, hostOneWithSharedApartment.Id, sharedApartmentId);
         
-        var hostOneTask = Task.Run(() => UpdateApartmentPrice(deltaPrice, hostOneWithSharedApartment.Id, sharedApartmentId, true));
-        var hostTwoTask = Task.Run(() => UpdateApartmentPrice(deltaPrice, hostTwoWithSharedApartment.Id, sharedApartmentId, true));
-        var hostThreeTask = Task.Run(() => UpdateApartmentPrice(deltaPrice, host3WithSharedApartment.Id, sharedApartmentId, true));
-        var hostFourTask = Task.Run(() => UpdateApartmentPrice(deltaPrice, host4WithSharedApartment.Id, sharedApartmentId, true));
-        var hostFiveTask = Task.Run(() => UpdateApartmentPrice(deltaPrice, host5WithSharedApartment.Id, sharedApartmentId, true));
+        var hostOneTask = Task.Run(async () =>
+        {
+            await _semaphore.WaitAsync();
+            try { await UpdateApartmentPrice(deltaPrice, hostOneWithSharedApartment.Id, sharedApartmentId, true); }
+            finally { _semaphore.Release(); }
+        } );
+        var hostTwoTask = Task.Run(async () =>
+        {
+             await _semaphore.WaitAsync();
+            try { await UpdateApartmentPrice(deltaPrice, hostTwoWithSharedApartment.Id, sharedApartmentId, true); }
+            finally { _semaphore.Release(); }
+        });
+        var hostThreeTask = Task.Run(async () =>
+        {
+            await _semaphore.WaitAsync();
+            try { await UpdateApartmentPrice(deltaPrice, host3WithSharedApartment.Id, sharedApartmentId, true); }
+            finally { _semaphore.Release(); }
+        });
+        var hostFourTask = Task.Run(async () =>
+        {
+            await _semaphore.WaitAsync();
+            try { await UpdateApartmentPrice(deltaPrice, host4WithSharedApartment.Id, sharedApartmentId, true); }
+            finally { _semaphore.Release(); }
+        });
+        var hostFiveTask = Task.Run(async () =>
+        {
+            await _semaphore.WaitAsync();
+            try { await UpdateApartmentPrice(deltaPrice, host5WithSharedApartment.Id, sharedApartmentId, true); }
+            finally { _semaphore.Release(); }
+        });
         
        await Task.WhenAll(hostOneTask, hostTwoTask,  hostThreeTask, hostFourTask, hostFiveTask);
        
@@ -61,10 +88,13 @@ public class HostRaceConditionSimulator
        return true;
     }
 
-    private void UpdateApartmentPrice(double price, int hostId, int apartmentId, bool toIncreasePrice = false)
+    private async Task UpdateApartmentPrice(double price, int hostId, int apartmentId, bool toIncreasePrice = false)
     {
         var apartment = _hostRepository.FindApartmentById(hostId, apartmentId);
         var newPrice = toIncreasePrice ? price + apartment!.Price : price;
+
+        // mocks some async work (e.g. I/O, HTTP query) so lock unusable here - SemaphoreSlim required instead
+        await Task.Yield();
         
         _hostRepository.UpdateApartment(hostId, apartmentId, new UpdateApartmentData { Price = newPrice });
     }
