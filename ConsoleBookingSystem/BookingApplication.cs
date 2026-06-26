@@ -4,13 +4,16 @@ public class BookingApplication
 {
     private IHostService _hostsService;
     private IConsoleInputOutput _io;
-    private Dictionary<BookingApplicationActionType, string> _actions =  new Dictionary<BookingApplicationActionType, string>
+    private Dictionary<BookingApplicationActionType, string> _actions = new Dictionary<BookingApplicationActionType, string>
     {
         { BookingApplicationActionType.ShowAllHosts, "Show all Hosts" },
         { BookingApplicationActionType.ShowHostDetails, "Show all available Apartments for a Host (by Host's ID)" },
         { BookingApplicationActionType.AddNewHost, "Add new Host" },
         { BookingApplicationActionType.RemoveHost, "Remove Host by ID" },
         { BookingApplicationActionType.UpdateHost, "Update Host by ID" },
+        { BookingApplicationActionType.AddNewApartment, "Add new Apartment" },
+        { BookingApplicationActionType.UpdateApartment, "Update Apartment by ID" },
+        { BookingApplicationActionType.RemoveApartment, "Remove Apartment by ID" },
         { BookingApplicationActionType.SaveChanges, "Save Changes" },
         { BookingApplicationActionType.ExitApplication, "Exit the application" },
     };
@@ -52,7 +55,7 @@ public class BookingApplication
         
         while (true)
         {
-            loopCounter = 1; // resetting counter at the beginning of every iteration
+            loopCounter = 1;
             
             _io.Write("\nSelect action:");
             
@@ -100,6 +103,9 @@ public class BookingApplication
             case BookingApplicationActionType.AddNewHost: HandleAddNewHostAction(); break;
             case BookingApplicationActionType.RemoveHost: HandleRemoveHostAction(); break;
             case BookingApplicationActionType.UpdateHost: HandleUpdateHostAction(); break;
+            case BookingApplicationActionType.AddNewApartment: HandleAddNewApartmentAction(); break;
+            case BookingApplicationActionType.UpdateApartment: HandleUpdateApartmentAction(); break;
+            case BookingApplicationActionType.RemoveApartment: HandleRemoveApartmentAction(); break;
             case BookingApplicationActionType.SaveChanges: HandleSaveChangesAction(); break;
             case BookingApplicationActionType.ExitApplication:
             {
@@ -120,7 +126,6 @@ public class BookingApplication
     {
         int hostIdToRetrieve;
         
-        // iterating until user inputs valid and existing host-id
         while (true)
         {
             hostIdToRetrieve = _io.ReadInt(message, true, invalidInputMessage);
@@ -134,10 +139,36 @@ public class BookingApplication
         return hostIdToRetrieve;
     }
 
+    private (int HostId, int? ApartmentId) TryRetrieveApartmentId(string getHostIdMessage, string getHostIdMessageInvalidInputMessage, string getApartmentIdMessage, string getApartmentIdMessageInvalidInputMessage)
+    {
+        var hostId = TryRetrieveHostId(getHostIdMessage, getHostIdMessageInvalidInputMessage);
+        int? apartmentId = null;
+            
+        var hostApartments = _hostsService.GetHostApartments(hostId);
+        if (hostApartments.Count == 0)
+        {
+            _io.Write("Selected Host does not Apartments added yet.");
+        }
+        else
+        {
+            _io.Write("List of selected Host's Apartments:");
+            foreach (var apartment in hostApartments)
+            {
+                _io.Write(" - " + apartment);
+            }
+        
+            apartmentId = _io.ReadInt(getApartmentIdMessage, true, getApartmentIdMessageInvalidInputMessage);
+        }
+        
+        return (hostId, apartmentId);
+    }
+
     private bool ConfirmExitApplication()
     {
         if (!_hostsService.AnyUnsavedChanges())
             return true;
+        
+        _io.Write("\n===== Important message =====");
         
         var pressedKey = _io.ReadPressKey("\nThere are unsaved changes which will be lost after exit.\nPress Enter to confirm exit. Press any other key to go back to the Menu.");
         return pressedKey == ConsoleKey.Enter;
@@ -200,13 +231,10 @@ public class BookingApplication
         try
         {
             _hostsService.AddHost(newHostName, newHostAddress);
-            // this line is expected to be shown when Host removed successfully
             _io.Write("\nHost added successfully!");
         }
         catch (ArgumentException exception)
         {
-            // this line is expected to be shown when there was an error during adding a Host
-            // (Host with specified name and address already exists, etc)
             _io.Write("\nInvalid arguments entered.");
             _io.Write($"{exception.Message}");
         }
@@ -224,7 +252,6 @@ public class BookingApplication
         try
         {
             _hostsService.RemoveHostById(hostIdToRemove);
-            // this line is expected to be shown when Host removed successfully
             _io.Write("\nHost removed successfully!");
         }
         catch (ArgumentOutOfRangeException exception)
@@ -257,8 +284,7 @@ public class BookingApplication
                 "Host address can not be empty, please try again.").Trim();
 
             _hostsService.EditHostById(hostIdToUpdate, newHostName, newHostAddress);
-
-            // this line is expected to be shown when Host removed successfully
+            
             _io.Write("\nHost is updated successfully!");
         }
         catch (ArgumentException exception)
@@ -270,6 +296,120 @@ public class BookingApplication
         {
             if (exception.HostId != null)
                 _io.Write($"\nHost with with ID = {exception.HostId} not found!");
+            else 
+                _io.Write("\nNo data found.");
+        }
+    }
+
+    private void HandleAddNewApartmentAction()
+    {
+        _io.Write("\n==== You are adding new Apartment ====");
+        
+        var targetHostId = TryRetrieveHostId("\nEnter ID of the Host you want to add new Apartment to:", "Please enter valid Host ID again.");
+        
+        var newApartmentNumber = _io.ReadInt("\nEnter new Apartment number:", true);
+        var newApartmentPrice = _io.ReadDouble("\nEnter new Apartment price (decimal point delimiter is a dot (e.g., \"120.20\"):", true);
+
+        try
+        {
+            _hostsService.AddApartment(targetHostId, new CreateApartmentData { Number = newApartmentNumber, Price = newApartmentPrice });
+            _io.Write($"New Apartment added successfully to Host with ID = {targetHostId}!");
+        }
+        catch (HostNotFoundException exception)
+        {
+            if (exception.HostId != null)
+                _io.Write($"\nHost with with ID = {exception.HostId} not found!");
+            else 
+                _io.Write("\nSomething went wrong during adding new Apartment.");
+        }
+    }
+    
+    private void HandleUpdateApartmentAction()
+    {
+        _io.Write("\n==== You are updating a particular Apartment's data ====");
+
+        try
+        {
+            var (hostIdToUpdate, apartmentIdToUpdate) = TryRetrieveApartmentId(
+                "\nEnter ID of the Apartment's Host (confirm input by pressing Enter):",
+                "\nInvalid host ID entered, please try again.",
+                "\nEnter ID of the Apartment to update:",
+                "Invalid Apartment ID entered, please try again."
+            );
+
+            if (apartmentIdToUpdate == null)
+            {
+                _io.Write("Selected Host does not have Apartments added yet.");
+                return;
+            }
+
+            var updatedApartmentNumber = _io.ReadInt("\nEnter updated Apartment number:", true);
+            var updatedApartmentPrice = _io.ReadDouble("\nEnter updated Apartment price (decimal point delimiter is a dot (e.g., \"120.20\"):", true);
+
+            _hostsService.EditApartmentById(hostIdToUpdate, (int)apartmentIdToUpdate, new UpdateApartmentData { Number = updatedApartmentNumber, Price = updatedApartmentPrice });
+            
+            _io.Write("\nApartment is updated successfully!");
+        }
+        catch (ArgumentException exception)
+        {
+            _io.Write("\nInvalid argument entered.");
+            _io.Write($"{exception.Message}");
+        }
+        catch (HostNotFoundException exception)
+        {
+            if (exception.HostId != null)
+                _io.Write($"\nHost with with ID = {exception.HostId} not found!");
+            else 
+                _io.Write("\nNo data found.");
+        }
+        catch (ApartmentNotFoundException exception)
+        {
+            if (exception.ApartmentId != null)
+                _io.Write($"\nApartment with with ID = {exception.ApartmentId} not found!");
+            else 
+                _io.Write("\nNo data found.");
+        }
+    }
+
+    private void HandleRemoveApartmentAction()
+    {
+        _io.Write("\n==== You are deleting an Apartment ====");
+        
+        try
+        {
+            var (hostIdToUpdate, apartmentIdToDelete) = TryRetrieveApartmentId(
+                "\nEnter ID of the Apartment's Host (confirm input by pressing Enter):",
+                "\nInvalid host ID entered, please try again.",
+            "\nEnter ID of the Apartment to delete:",
+                "Invalid Apartment ID entered, please try again."
+            );
+            
+            if (apartmentIdToDelete == null)
+            {
+                _io.Write("Selected Host does not Apartments added yet.");
+                return;
+            }
+
+            _hostsService.RemoveApartmentById(hostIdToUpdate, (int)apartmentIdToDelete);
+            
+            _io.Write("\nHost is deleted successfully!");
+        }
+        catch (ArgumentException exception)
+        {
+            _io.Write("\nInvalid argument entered.");
+            _io.Write($"{exception.Message}");
+        }
+        catch (HostNotFoundException exception)
+        {
+            if (exception.HostId != null)
+                _io.Write($"\nHost with with ID = {exception.HostId} not found!");
+            else 
+                _io.Write("\nNo data found.");
+        }
+        catch (ApartmentNotFoundException exception)
+        {
+            if (exception.ApartmentId != null)
+                _io.Write($"\nApartment with with ID = {exception.ApartmentId} not found!");
             else 
                 _io.Write("\nNo data found.");
         }

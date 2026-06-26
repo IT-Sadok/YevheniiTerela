@@ -2,5 +2,5 @@ namespace ConsoleBookingSystem;
 
 public interface IHostSeeder
 {
-    public List<Host> GetDefaultHosts();
+    public List<Host> GetHosts();
 }

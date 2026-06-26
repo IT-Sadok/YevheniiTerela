@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace ConsoleBookingSystem;
 
 public class ConsoleInputOutput : IConsoleInputOutput
@@ -107,5 +109,25 @@ public class ConsoleInputOutput : IConsoleInputOutput
         }
         
         return input;
+    }
+    
+    public double ReadDouble(string message, bool retryOnInvalid = false, string retryMessage = "Invalid input. Please try again.")
+    {
+        Write(message);
+    
+        double result;
+    
+        while (true)
+        {
+            if (!double.TryParse(Console.ReadLine() ?? "", NumberStyles.Number, CultureInfo.InvariantCulture, out result))
+            {
+                Write(retryMessage);
+                if (retryOnInvalid) continue;
+            }
+            
+            break;
+        }
+        
+        return result;
     }
 }

@@ -76,6 +76,64 @@ public class HostService : IHostService
         SetAnyUnsavedChanges(true);
     }
 
+    public List<Apartment> GetHostApartments(int hostId)
+    {
+        if (hostId <= 0)
+            throw new ArgumentOutOfRangeException(nameof(hostId), "Host ID cannot be zero or negative.");
+        
+        if (!HostExistsById(hostId))
+            throw new HostNotFoundException("Host with specified ID not found.", hostId);
+        
+        return _hostRepository.FindAllHostApartments(hostId);
+    }
+    
+    public bool ApartmentExistsById(int hostId, int apartmentId)
+    {
+        return _hostRepository.FindApartmentById(hostId, apartmentId) != null;
+    }
+
+    public void AddApartment(int hostId, CreateApartmentData createApartmentData)
+    {
+        if (!HostExistsById(hostId))
+            throw new HostNotFoundException("Host with specified ID not found.", hostId);
+        
+        _hostRepository.CreateApartment(hostId, new CreateApartmentData { Number = createApartmentData.Number, Price = createApartmentData.Price });
+        
+        SetAnyUnsavedChanges(true);
+    }
+    
+    public void EditApartmentById(int hostId, int apartmentId, UpdateApartmentData updateApartmentData)
+    {
+        if (!HostExistsById(hostId))
+            throw new HostNotFoundException("Host with specified ID not found.", hostId);
+        
+        if (!ApartmentExistsById(hostId, apartmentId))
+            throw new ApartmentNotFoundException("Apartment with specified ID not found.", apartmentId);
+        
+        _hostRepository.UpdateApartment(hostId, apartmentId, updateApartmentData);
+        
+        SetAnyUnsavedChanges(true);
+    }
+    
+    public void RemoveApartmentById(int hostId, int apartmentId)
+    {
+        if (hostId <= 0)
+            throw new ArgumentOutOfRangeException(nameof(hostId), "Host ID cannot be zero or negative.");
+        
+        if (apartmentId <= 0)
+            throw new ArgumentOutOfRangeException(nameof(apartmentId), "Apartment ID cannot be zero or negative.");
+        
+        if (_hostRepository.FindHostsCount() == 0)
+            throw new HostNotFoundException("No Hosts found.");
+        
+        if (_hostRepository.FindHostApartmentsCount(hostId) == 0)
+            throw new ApartmentNotFoundException("No Apartments found in the Host with specified ID.", apartmentId);
+        
+        _hostRepository.RemoveApartment(hostId, apartmentId);
+        
+        SetAnyUnsavedChanges(true);
+    }
+
     public void SaveChanges()
     {
         _hostRepository.SaveChanges();
