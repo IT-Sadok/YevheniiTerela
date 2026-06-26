@@ -68,7 +68,7 @@ public class HostRaceConditionSimulator
             finally { _semaphore.Release(); }
         };
         
-       await Task.WhenAll(ostOneTask = async (), hostTwoTask(),  hostThreeTask(), hostFourTask(), hostFiveTask());
+       await Task.WhenAll(hostOneTask(), hostTwoTask(),  hostThreeTask(), hostFourTask(), hostFiveTask());
        
        var expectedSharedApartmentPrice = initialSharedApartmentPrice + deltaPrice * 5;
        var finalSharedApartmentPrice = _hostRepository.FindApartmentById(hostOneId, sharedApartmentId)!.Price;
