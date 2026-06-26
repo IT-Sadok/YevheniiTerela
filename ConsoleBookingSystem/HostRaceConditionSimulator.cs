@@ -37,38 +37,38 @@ public class HostRaceConditionSimulator
         // resetting shared Apartment's price to initial (once - cause apartment if a reference type variable here)
         await UpdateApartmentPrice(initialSharedApartmentPrice, hostOneWithSharedApartment.Id, sharedApartmentId);
         
-        var hostOneTask = Task.Run(async () =>
+        var hostOneTask = async () =>
         {
             await _semaphore.WaitAsync();
             try { await UpdateApartmentPrice(deltaPrice, hostOneWithSharedApartment.Id, sharedApartmentId, true); }
             finally { _semaphore.Release(); }
-        } );
-        var hostTwoTask = Task.Run(async () =>
+        };
+        var hostTwoTask = async () =>
         {
              await _semaphore.WaitAsync();
             try { await UpdateApartmentPrice(deltaPrice, hostTwoWithSharedApartment.Id, sharedApartmentId, true); }
             finally { _semaphore.Release(); }
-        });
-        var hostThreeTask = Task.Run(async () =>
+        };
+        var hostThreeTask = async () =>
         {
             await _semaphore.WaitAsync();
             try { await UpdateApartmentPrice(deltaPrice, host3WithSharedApartment.Id, sharedApartmentId, true); }
             finally { _semaphore.Release(); }
-        });
-        var hostFourTask = Task.Run(async () =>
+        };
+        var hostFourTask = async () =>
         {
             await _semaphore.WaitAsync();
             try { await UpdateApartmentPrice(deltaPrice, host4WithSharedApartment.Id, sharedApartmentId, true); }
             finally { _semaphore.Release(); }
-        });
-        var hostFiveTask = Task.Run(async () =>
+        };
+        var hostFiveTask = async () =>
         {
             await _semaphore.WaitAsync();
             try { await UpdateApartmentPrice(deltaPrice, host5WithSharedApartment.Id, sharedApartmentId, true); }
             finally { _semaphore.Release(); }
-        });
+        };
         
-       await Task.WhenAll(hostOneTask, hostTwoTask,  hostThreeTask, hostFourTask, hostFiveTask);
+       await Task.WhenAll(ostOneTask = async (), hostTwoTask(),  hostThreeTask(), hostFourTask(), hostFiveTask());
        
        var expectedSharedApartmentPrice = initialSharedApartmentPrice + deltaPrice * 5;
        var finalSharedApartmentPrice = _hostRepository.FindApartmentById(hostOneId, sharedApartmentId)!.Price;
