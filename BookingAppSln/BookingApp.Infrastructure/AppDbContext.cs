@@ -1,26 +1,17 @@
 using BookingApp.Domain;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookingApp.Infrastructure;
 
-public class AppDbContext : DbContext
+public class AppDbContext : IdentityDbContext<User, IdentityRole<int>, int>
 {
-    public DbSet<User> Users { get; set; }
-    public DbSet<UserRole> UserRoles { get; set; }
-    
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) {}
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        
-        modelBuilder.Entity<UserRole>().HasKey(role => new { role.UserId, role.Role });
-        
-        modelBuilder.Entity<UserRole>()
-            .HasOne(role => role.User)
-            .WithMany(user => user.UserRoles)
-            .HasForeignKey(role => role.UserId);
-        
-        modelBuilder.Entity<User>().HasIndex(user => user.Email).IsUnique();
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
     }
 }

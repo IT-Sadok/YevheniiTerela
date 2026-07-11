@@ -1,12 +1,12 @@
-using System.Text.Json.Serialization;
+using BookingApp.Application;
 using BookingApp.Application.Interfaces;
-using BookingApp.Application.Services;
 using BookingApp.Domain;
-using BookingApp.Domain.Interfaces;
 using BookingApp.Infrastructure;
-using BookingApp.Infrastructure.Repositories;
+using BookingApp.Infrastructure.Seeders;
+using BookingApp.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,26 +15,32 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 
 
-builder.Services.AddScoped<IAppStatusService, AppStatusService>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
-builder.Services.AddScoped<IUserService, UserService>();
-
-builder.Services.AddControllers()
-    /*
-     making sure that enums will be serialized to their option's names but to their int values,
-     so for enum Role { Client, Host } - Role.Client will be serialized not into 0 but into "Client"
-    */
-    .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+builder.Services.AddControllers();
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddIdentityCore<User>()
+    .AddRoles<IdentityRole<int>>()
+    .AddEntityFrameworkStores<AppDbContext>();
+
+builder.Services.AddApplicationMapping();
+
+builder.Services.AddScoped<IAuthService, AuthService>();
+
 var app = builder.Build();
+
+await IdentitySeeder.SeedRolesAsync(app.Services);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference(options =>
+    {
+        options.DisableAgent();
+        options.DisableDefaultFonts();
+        options.DisableTelemetry();
+    });
 }
 
 app.UseHttpsRedirection();
