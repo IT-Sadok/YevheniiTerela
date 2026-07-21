@@ -1,9 +1,10 @@
 using BookingApp.Application;
 using BookingApp.Application.Interfaces;
 using BookingApp.Domain;
-using BookingApp.Infrastructure;
+using BookingApp.Infrastructure.Persistence;
 using BookingApp.Infrastructure.Seeders;
-using BookingApp.Infrastructure.Services;
+using BookingApp.Application.Services;
+using BookingApp.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
@@ -17,15 +18,11 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddControllers();
 
-builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-builder.Services.AddIdentityCore<User>()
-    .AddRoles<IdentityRole<int>>()
-    .AddEntityFrameworkStores<AppDbContext>();
-
 builder.Services.AddApplicationMapping();
+builder.Services.AddApplicationServices();
 
-builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddInfrastructureServices();
+builder.Services.AddInfrastructurePersistence(builder.Configuration);
 
 var app = builder.Build();
 
