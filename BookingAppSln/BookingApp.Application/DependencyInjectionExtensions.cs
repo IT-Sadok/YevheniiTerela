@@ -25,10 +25,5 @@ public static class DependencyInjectionExtensions
             .NewConfig()
             .Map(dest => dest.Id, src => src.Id)
             .IgnoreNonMapped(true);
-        
-        TypeAdapterConfig<User, AccountCreationResult>
-            .NewConfig()
-            .Map(dest => dest.Id, src => src.Id)
-            .IgnoreNonMapped(true);
     }
 }

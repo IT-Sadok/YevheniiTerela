@@ -1,6 +1,5 @@
 using BookingApp.Application;
 using BookingApp.Application.Interfaces;
-using BookingApp.Application.Services;
 using BookingApp.Domain;
 using BookingApp.Infrastructure;
 using BookingApp.Infrastructure.Seeders;
@@ -27,8 +26,6 @@ builder.Services.AddIdentityCore<User>()
 builder.Services.AddApplicationMapping();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IAccountCreator, IdentityAccountCreator>();
-builder.Services.AddScoped<IAuthenticator, IdentityAuthenticator>();
 
 var app = builder.Build();
 
