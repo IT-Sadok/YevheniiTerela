@@ -21,9 +21,6 @@ public static class DependencyInjectionExtensions
                 $"{JwtOptions.SectionName}:{nameof(JwtOptions.AccessTokenLifetimeMinutes)} has invalid value")
             .ValidateOnStart();
 
-        services.AddOptions<JwtOptions>("Refresh")
-            .Bind(configuration.GetSection(JwtOptions.SectionName));
-
         services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
             .Configure<IOptions<JwtOptions>>((bearerOptions, jwtOptions) =>
             {
@@ -46,7 +43,7 @@ public static class DependencyInjectionExtensions
                 };
             });
 
-        services.AddAuthentication()
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer();
     }
 }
