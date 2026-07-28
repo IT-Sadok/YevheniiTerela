@@ -1,5 +1,7 @@
 using BookingApp.Application.DTOs.Auth;
 using BookingApp.Application.Interfaces;
+using BookingApp.Domain;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookingApp.API.Controllers;
@@ -23,7 +25,7 @@ public class AuthController : ControllerBase
         if (registerResult.Succeeded)
         {
             // TODO - update later to CreatedAtAction / CreatedAtRoute - when implement UsersController
-            return Ok(registerResult.Value);
+            return Ok(registerResult.GetValueOrThrow());
         }
 
         return BadRequest(new ErrorResponse(registerResult.Errors.ToList()));
@@ -36,9 +38,14 @@ public class AuthController : ControllerBase
 
         if (loginResult.Succeeded)
         {
-            return Ok();
+            return Ok(loginResult.GetValueOrThrow());
         }
 
         return BadRequest(new ErrorResponse(loginResult.Errors.ToList()));
     }
+
+    // TODO - remove after JWT authorization is fully completed (access-tokens + refresh-tokens)
+    [HttpGet("test/protected")]
+    [Authorize(Roles = Roles.Client)]
+    public IActionResult TestProtected() => Ok("Access allowed");
 }
