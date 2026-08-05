@@ -1,5 +1,6 @@
 using BookingApp.Application.DTOs;
 using BookingApp.Application.DTOs.Auth;
+using BookingApp.Application.Errors;
 using BookingApp.Application.Interfaces;
 using BookingApp.Domain;
 using Microsoft.AspNetCore.Identity;
@@ -51,5 +52,26 @@ public class UserIdentityService : IUserIdentityService
         }
         
         return OperationResult.Success();
+    }
+
+    public async Task<OperationResult<AuthenticatedUserResult>> AuthenticateAsync(string email, string password)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+        
+        // TODO - refactor later to check for lockout as well
+        if (user == null || !await _userManager.CheckPasswordAsync(user, password))
+        {
+            return OperationResult<AuthenticatedUserResult>.Failure([AuthErrorCodes.InvalidEmailOrPassword]);
+        }
+        
+        var userRoles = await _userManager.GetRolesAsync(user);
+        
+        return OperationResult<AuthenticatedUserResult>.Success(
+            new AuthenticatedUserResult(
+                user.Id, 
+                user.Email ?? throw new InvalidOperationException("Authenticated user has no email on record"), 
+                userRoles.ToList()
+            )
+        );
     }
 }

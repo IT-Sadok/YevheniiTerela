@@ -1,5 +1,6 @@
 using BookingApp.Application.DTOs;
 using BookingApp.Application.DTOs.Auth;
+using BookingApp.Application.Errors;
 using BookingApp.Application.Interfaces;
 using BookingApp.Domain;
 using Mapster;
@@ -10,18 +11,20 @@ public class AuthService : IAuthService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserIdentityService _userIdentityService;
+    private readonly ITokenService _tokenService;
     
-    public AuthService(IUnitOfWork unitOfWork, IUserIdentityService userIdentityService)
+    public AuthService(IUnitOfWork unitOfWork, IUserIdentityService userIdentityService, ITokenService tokenService)
     {
         _unitOfWork = unitOfWork;
         _userIdentityService = userIdentityService;
+        _tokenService = tokenService;
     }
     
     public async Task<OperationResult<RegisterResponse>> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken = default)
     {
         if (!Roles.RolesAvailableForPublicRegistration.Contains(request.Role))
         {
-            return OperationResult<RegisterResponse>.Failure(["CouldNotCreateAccount", "InvalidRoleProvided"]);
+            return OperationResult<RegisterResponse>.Failure([AuthErrorCodes.CouldNotCreateAccount, AuthErrorCodes.InvalidRoleProvided]);
         }
 
         User userFromMappedRequest = request.Adapt<User>();
@@ -59,12 +62,16 @@ public class AuthService : IAuthService
 
     public async Task<OperationResult<LoginResponse>> LoginAsync(LoginRequest request)
     {
-        var checkCredentialsResult = await _userIdentityService.VerifyCredentialsAsync(request.Email, request.Password);
-        if (!checkCredentialsResult.Succeeded)
-        {
-            return OperationResult<LoginResponse>.Failure(["InvalidEmailOrPassword"]);
-        }
+        var authenticatedUserResult = await _userIdentityService.AuthenticateAsync(request.Email, request.Password);
 
-        return OperationResult<LoginResponse>.Success(new LoginResponse());
+        if (!authenticatedUserResult.Succeeded)
+            
+        {
+            return OperationResult<LoginResponse>.Failure(authenticatedUserResult.Errors);
+        }
+        
+        var accessToken = _tokenService.GenerateAccessToken(authenticatedUserResult.Value);
+
+        return OperationResult<LoginResponse>.Success(new LoginResponse(accessToken));
     }
 }
