@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <Folder Include="EntityTypeConfigurations\" />
-    <Folder Include="Services\" />
+    <Folder Include="Persistence\Repositories\" />
   </ItemGroup>
 
   <PropertyGroup>

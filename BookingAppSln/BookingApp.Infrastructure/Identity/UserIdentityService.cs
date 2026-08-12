@@ -1,8 +1,9 @@
 using BookingApp.Application.DTOs;
 using BookingApp.Application.DTOs.Auth;
 using BookingApp.Application.Errors;
+using BookingApp.Application.Exceptions.User;
 using BookingApp.Application.Interfaces;
-using BookingApp.Domain;
+using BookingApp.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 
 namespace BookingApp.Infrastructure.Identity;
@@ -42,18 +43,6 @@ public class UserIdentityService : IUserIdentityService
         return OperationResult.Success();
     }
 
-    public async Task<OperationResult> VerifyCredentialsAsync(string email, string password)
-    {
-        var user = await _userManager.FindByEmailAsync(email);
-
-        if (user == null || !await _userManager.CheckPasswordAsync(user, password))
-        {
-            return OperationResult.Failure([]);
-        }
-        
-        return OperationResult.Success();
-    }
-
     public async Task<OperationResult<AuthenticatedUserResult>> AuthenticateAsync(string email, string password)
     {
         var user = await _userManager.FindByEmailAsync(email);
@@ -69,7 +58,27 @@ public class UserIdentityService : IUserIdentityService
         return OperationResult<AuthenticatedUserResult>.Success(
             new AuthenticatedUserResult(
                 user.Id, 
-                user.Email ?? throw new InvalidOperationException("Authenticated user has no email on record"), 
+                user.Email ?? throw new AuthenticatedUserHasNoEmailException(),
+                userRoles.ToList()
+            )
+        );
+    }
+
+    public async Task<OperationResult<AuthenticatedUserResult>> GetWithRolesById(int userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+
+        if (user == null)
+        {
+            return OperationResult<AuthenticatedUserResult>.Failure([AuthErrorCodes.UserNotFound]);
+        }
+        
+        var userRoles = await _userManager.GetRolesAsync(user);
+        
+        return OperationResult<AuthenticatedUserResult>.Success(
+            new AuthenticatedUserResult(
+                user.Id, 
+                user.Email ?? throw new AuthenticatedUserHasNoEmailException(),
                 userRoles.ToList()
             )
         );

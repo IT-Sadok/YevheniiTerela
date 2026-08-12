@@ -1,5 +1,5 @@
+using BookingApp.Application.Interfaces;
 using BookingApp.Domain;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BookingApp.Infrastructure.Seeders;
@@ -10,16 +10,18 @@ public static class IdentitySeeder
     {
         await using var scope = services.CreateAsyncScope();
         
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
+        var roleManager = scope.ServiceProvider.GetRequiredService<IRoleIdentityService>();
 
-        if (!await roleManager.RoleExistsAsync(Roles.Host))
+        foreach (var roleName in Roles.AllRoles)
         {
-            await roleManager.CreateAsync(new IdentityRole<int> { Name = Roles.Host });   
-        }
-        
-        if (!await roleManager.RoleExistsAsync(Roles.Client))
-        {
-            await roleManager.CreateAsync(new IdentityRole<int> { Name = Roles.Client });   
+            if (await roleManager.ExistsAsync(roleName)) 
+                continue;
+            
+            var seedRoleResult = await roleManager.CreateAsync(roleName);
+            if (!seedRoleResult.Succeeded)
+            {
+                throw new InvalidOperationException($"Failed to see a role: {roleName}: {string.Join(", ", seedRoleResult.Errors)}");
+            }
         }
     }
 }

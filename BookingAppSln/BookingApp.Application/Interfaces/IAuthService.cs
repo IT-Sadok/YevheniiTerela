@@ -6,5 +6,7 @@ namespace BookingApp.Application.Interfaces;
 public interface IAuthService
 {
     Task<OperationResult<RegisterResponse>> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken = default);
-    Task<OperationResult<LoginResponse>> LoginAsync(LoginRequest request);
+    Task<OperationResult<IssuedTokens>> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default);
+    Task<OperationResult<IssuedTokens>> RefreshAsync(string refreshToken, CancellationToken cancellationToken = default);
+    Task<OperationResult> LogoutAsync(string refreshToken, CancellationToken cancellationToken = default);
 }
