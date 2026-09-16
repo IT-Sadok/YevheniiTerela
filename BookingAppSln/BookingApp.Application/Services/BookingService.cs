@@ -47,7 +47,7 @@ public class BookingService : IBookingService
         }
         
         // TODO: implement proper locking mechanism for resolving TOCTOU (creating a new booking is not race-safe at the moment)
-        if (await _bookingRepository.HasOverlappingBookingAsync(request.ApartmentId, request.CheckIn, request.CheckOut, cancellationToken))
+        if (await _bookingRepository.HasOverlappingBookingAsync(request.ApartmentId, request.CheckIn.Date, request.CheckOut.Date, cancellationToken))
         {
             return OperationResult<BookingResponse>.Failure([BookingErrorCodes.ApartmentNotAvailable]);
         }
@@ -65,7 +65,7 @@ public class BookingService : IBookingService
         try
         {
             await _unitOfWork.CommitAsync(cancellationToken);
-            return OperationResult<BookingResponse>.Success(_mapper.Map<BookingResponse>(bookingInstance));
+            return _mapper.Map<BookingResponse>(bookingInstance);
         }
         catch
         {
@@ -88,7 +88,7 @@ public class BookingService : IBookingService
             return OperationResult<BookingResponse>.Failure([BookingErrorCodes.BookingNotFound]);
         }
         
-        return OperationResult<BookingResponse>.Success(_mapper.Map<BookingResponse>(bookingInstance));
+        return _mapper.Map<BookingResponse>(bookingInstance);
     }
 
     public async Task<OperationResult<PaginatedResponse<BookingResponse>>> GetMyBookingsAsync(MyBookingsPaginatedRequest request, int callerId, CancellationToken cancellationToken)
@@ -100,13 +100,10 @@ public class BookingService : IBookingService
             pagesQueryParams,
             cancellationToken);
         
-        return OperationResult<PaginatedResponse<BookingResponse>>
-            .Success(
-                PaginatedResponse<BookingResponse>.Create(
-                    _mapper.Map<List<BookingResponse>>(bookingsPagedResult.Items),
-                    pagesQueryParams, 
-                    bookingsPagedResult.TotalCount)
-            );
+        return PaginatedResponse<BookingResponse>.Create(
+            _mapper.Map<List<BookingResponse>>(bookingsPagedResult.Items),
+            pagesQueryParams, 
+            bookingsPagedResult.TotalCount);
     }
 
     private async Task SafeRollbackAsync(CancellationToken cancellationToken)
